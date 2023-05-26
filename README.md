@@ -1,7 +1,7 @@
 # GLAIR Vision Java SDK
 
 ## Requirement
-1. Java ([Download Here](https://jdk.java.net/))
+1. Java 17 ([Download Here](https://jdk.java.net/))
 2. IntelliJ IDEA Community ([Download Here](https://www.jetbrains.com/idea/download))
 
 ## Development
