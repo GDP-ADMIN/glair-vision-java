@@ -8,13 +8,22 @@ public class App {
             "OKMjceKWLXdmTKYwoSCXAVVDWtQWRrhr").build();
     Vision vision = new Vision(settings);
 
-    try {
-      String response = vision.ocr().ktp("/Users/vincent.cuardi" +
-          "/GDP/glair-ocr/demo/kontext-id/frontend/public/sample/ktp.png");
+    String imagePath = "/Users/vincent.cuardi/GDP/glair-ocr/demo/kontext-id" +
+        "/frontend/public/sample/ktp.png";
+//    String response = vision.ocr().ktp(imagePath);
 
-      System.out.println("Response: " + response);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+//    FaceBio.MatchParam matchParam = new FaceBio.MatchParam(imagePath,
+//        imagePath);
+//    String response = vision.faceBio().match(matchParam);
+
+//    FaceBio.PassiveLivenessParam passiveLivenessParam =
+//        new FaceBio.PassiveLivenessParam(imagePath);
+//    String response = vision.faceBio().passiveLiveness(passiveLivenessParam);
+
+    FaceBio.ActiveLivenessParam activeLivenessParam =
+        new FaceBio.ActiveLivenessParam(imagePath, "HAND_00000");
+    String response = vision.faceBio().activeLiveness(activeLivenessParam);
+
+    System.out.println("Response: " + response);
   }
 }

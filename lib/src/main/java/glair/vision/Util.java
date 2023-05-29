@@ -2,6 +2,11 @@ package glair.vision;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Base64;
+import java.util.HashMap;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -13,14 +18,19 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Util {
+  private static final Logger logger = LogManager.getLogger();
+
   public static String visionFetch(Config config, Request request) throws Exception {
     String path = request.getPath(), method = request.getMethod();
     HttpEntity body = request.getBody();
 
     // API endpoint URL
     String apiEndpoint = config.getUrl(path);
+    logger.debug("URL " + Util.json("url", apiEndpoint));
 
     CloseableHttpClient httpClient = HttpClients.createDefault();
     HttpRequestBase httpRequestBase;
@@ -67,7 +77,44 @@ public class Util {
     entityBuilder.addPart(name, fileBody);
   }
 
-  public static HttpEntity createJsonBody(String jsonPayload) {
-    return new StringEntity(jsonPayload, ContentType.APPLICATION_JSON);
+  public static HttpEntity createJsonBody(HashMap<String, String> map) {
+    String jsonString = Util.json(map);
+    return new StringEntity(jsonString, ContentType.APPLICATION_JSON);
+  }
+
+  public static String fileToBase64(String filePath) {
+    try {
+      Path path = Paths.get(filePath);
+      byte[] imageBytes = Files.readAllBytes(path);
+      return Base64.getEncoder().encodeToString(imageBytes);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
+  private static String toString(String key, String value) {
+    return "\"" + key + "\": \"" + value + "\"";
+  }
+
+  public static String json(String key, String value) {
+    return "{" + toString(key, value) + "}";
+  }
+
+  public static String json(HashMap<String, String> map) {
+    String result = "{";
+    boolean first = true;
+
+    for (String key: map.keySet()) {
+      String value = map.get(key);
+      if (first) {
+        result = result + toString(key, value);
+        first = false;
+      } else {
+        result = result + ", " + toString(key, value);
+      }
+    }
+
+    return result + "}";
   }
 }
