@@ -28,24 +28,32 @@ public class Util {
     String path = request.getPath(), method = request.getMethod();
     HttpEntity body = request.getBody();
 
-    // API endpoint URL
     String apiEndpoint = config.getUrl(path);
+
     logger.debug("URL " + Util.json("url", apiEndpoint));
+    //    logger.debug(config);
 
     CloseableHttpClient httpClient = HttpClients.createDefault();
     HttpRequestBase httpRequestBase;
 
     if (method.equalsIgnoreCase("GET")) {
-      HttpPost httpPost = new HttpPost(apiEndpoint);
-      httpRequestBase = httpPost;
+      HttpGet httpGet = new HttpGet(apiEndpoint);
 
+      httpGet.setHeader(HttpHeaders.AUTHORIZATION, config.getBasicAuth());
+      httpGet.setHeader("x-api-key", config.getApiKey());
+      httpGet.setHeader("GLAIR-Vision-Java-SDK-Version", "0.0.1-beta.1");
+
+      httpRequestBase = httpGet;
     } else if (method.equalsIgnoreCase("POST")) {
       HttpPost httpPost = new HttpPost(apiEndpoint);
 
       httpPost.setHeader(HttpHeaders.AUTHORIZATION, config.getBasicAuth());
       httpPost.setHeader("x-api-key", config.getApiKey());
+//      httpPost.setHeader("GLAIR-Vision-Java-SDK-Version", "0.0.1-beta.1");
 
-      httpPost.setEntity(body);
+      if (body != null) {
+        httpPost.setEntity(body);
+      }
 
       httpRequestBase = httpPost;
     } else {
@@ -63,7 +71,9 @@ public class Util {
     response.close();
     httpClient.close();
 
-    if (response.getStatusLine().getStatusCode() == 200) {
+    if (response
+        .getStatusLine()
+        .getStatusCode() == 200) {
       return responseBody;
     }
 
@@ -86,35 +96,69 @@ public class Util {
     try {
       Path path = Paths.get(filePath);
       byte[] imageBytes = Files.readAllBytes(path);
-      return Base64.getEncoder().encodeToString(imageBytes);
+      return Base64
+          .getEncoder()
+          .encodeToString(imageBytes);
     } catch (Exception e) {
       e.printStackTrace();
       return null;
     }
   }
 
-  private static String toString(String key, String value) {
+  private static String formatKeyValueString(String key, String value) {
     return "\"" + key + "\": \"" + value + "\"";
   }
 
   public static String json(String key, String value) {
-    return "{" + toString(key, value) + "}";
+    return "{" + formatKeyValueString(key, value) + "}";
   }
 
   public static String json(HashMap<String, String> map) {
-    String result = "{";
+    StringBuilder stringBuilder = new StringBuilder();
     boolean first = true;
 
-    for (String key: map.keySet()) {
+    stringBuilder.append("{");
+
+    for (String key : map.keySet()) {
       String value = map.get(key);
       if (first) {
-        result = result + toString(key, value);
+        stringBuilder.append(formatKeyValueString(key, value));
         first = false;
       } else {
-        result = result + ", " + toString(key, value);
+        stringBuilder.append(", ");
+        stringBuilder.append(formatKeyValueString(key, value));
       }
     }
 
-    return result + "}";
+    stringBuilder.append("}");
+
+    return stringBuilder.toString();
   }
+
+  public static String json(HashMap<String, String> map, int indent) {
+    StringBuilder stringBuilder = new StringBuilder();
+    String tab = " ".repeat(indent);
+    boolean first = true;
+
+    stringBuilder.append("{");
+
+    for (String key : map.keySet()) {
+      String value = map.get(key);
+      if (first) {
+        stringBuilder.append("\n");
+        stringBuilder.append(tab);
+        stringBuilder.append(formatKeyValueString(key, value));
+        first = false;
+      } else {
+        stringBuilder.append(",\n");
+        stringBuilder.append(tab);
+        stringBuilder.append(formatKeyValueString(key, value));
+      }
+    }
+
+    stringBuilder.append("\n}");
+
+    return stringBuilder.toString();
+  }
+
 }

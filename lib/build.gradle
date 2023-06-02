@@ -8,7 +8,7 @@
  */
 
 // ShadowJar
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+//import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     // Apply the java-library plugin for API and implementation separation.
@@ -16,7 +16,7 @@ plugins {
     id 'application'
 
     // ShadowJar
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+//    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 // Main App
@@ -30,8 +30,8 @@ repositories {
 
 dependencies {
     // ShadowJar
-    shadow localGroovy()
-    shadow gradleApi()
+//    shadow localGroovy()
+//    shadow gradleApi()
 
     implementation 'org.apache.httpcomponents:httpclient:4.5.14'
     implementation 'org.apache.httpcomponents:httpmime:4.5.14'
@@ -40,9 +40,9 @@ dependencies {
 //    implementation 'com.google.guava:guava:31.1-jre'
 }
 
-tasks.named('shadowJar', ShadowJar) {
-    enableRelocation true
-}
+//tasks.named('shadowJar', ShadowJar) {
+//    enableRelocation true
+//}
 
 testing {
     suites {

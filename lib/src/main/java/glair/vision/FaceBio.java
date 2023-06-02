@@ -1,7 +1,8 @@
 package glair.vision;
 
+import glair.vision.sessions.ActiveLivenessSessions;
+import glair.vision.sessions.PassiveLivenessSessions;
 import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,120 +13,109 @@ public class FaceBio {
   private static final Logger logger = LogManager.getLogger();
 
   private final Config config;
+  private final ActiveLivenessSessions activeLivenessSessions;
+  private final PassiveLivenessSessions passiveLivenessSessions;
 
   public FaceBio(Config config) {
     this.config = config;
+    this.activeLivenessSessions = new ActiveLivenessSessions(config);
+    this.passiveLivenessSessions = new PassiveLivenessSessions(config);
   }
 
-  public String match(MatchParam param) {
+  public ActiveLivenessSessions activeLivenessSessions() {
+    return this.activeLivenessSessions;
+  }
+
+  public PassiveLivenessSessions passiveLivenessSessions() {
+    return this.passiveLivenessSessions;
+  }
+
+  public String match(MatchParam param) throws Exception {
+    return match(param, this.config.getSettings());
+  }
+
+  public String match(MatchParam param, Settings newSettings) throws Exception {
     logger.info("Face Biometric - Match " + param);
+
+    String url = "face/:version/match";
+    String method = "POST";
 
     HashMap<String, String> map = new HashMap<>();
     map.put("captured_image", Util.fileToBase64(param.captured));
     map.put("stored_image", Util.fileToBase64(param.stored));
     HttpEntity body = Util.createJsonBody(map);
 
-    Request request = new Request.RequestBuilder("face/:version/match",
-        "POST").body(body).build();
+    Request request = new Request.RequestBuilder(url, method)
+        .body(body)
+        .build();
 
-    String response;
-
-    try {
-      response = Util.visionFetch(this.config, request);
-    } catch (Exception e) {
-      response = e.getMessage();
-    }
-
-    return response;
+    return Util.visionFetch(this.config.getConfig(newSettings), request);
   }
 
-  public String passiveLiveness(PassiveLivenessParam param) {
+  public String passiveLiveness(PassiveLivenessParam param) throws Exception {
+    return passiveLiveness(param, this.config.getSettings());
+  }
+
+  public String passiveLiveness(PassiveLivenessParam param,
+                                Settings newSettings) throws Exception {
     logger.info("Face Biometric - Passive Liveness " + param);
 
-    MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-    Util.addImageToFormData(multipartEntityBuilder, "image", param.image);
-    HttpEntity body = multipartEntityBuilder.build();
+    String url = "face/:version/passive-liveness";
+    String method = "POST";
 
-    Request request = new Request.RequestBuilder("face/:version/passive" +
-        "-liveness",
-        "POST").body(body).build();
+    MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
+    Util.addImageToFormData(bodyBuilder, "image", param.image);
+    HttpEntity body = bodyBuilder.build();
 
-    String response;
+    Request request = new Request.RequestBuilder(url, method)
+        .body(body)
+        .build();
 
-    try {
-      response = Util.visionFetch(this.config, request);
-    } catch (Exception e) {
-      response = e.getMessage();
-    }
-
-    return response;
+    return Util.visionFetch(this.config.getConfig(newSettings), request);
   }
 
-  public String activeLiveness(ActiveLivenessParam param) {
+  public String activeLiveness(ActiveLivenessParam param) throws Exception {
+    return activeLiveness(param, this.config.getSettings());
+  }
+
+  public String activeLiveness(ActiveLivenessParam param,
+                               Settings newSettings) throws Exception {
     logger.info("Face Biometric - Active Liveness " + param);
 
-    MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-    Util.addImageToFormData(multipartEntityBuilder, "image", param.image);
-    multipartEntityBuilder.addTextBody("gesture-code", param.gestureCode,
-        ContentType.TEXT_PLAIN);
-    HttpEntity body = multipartEntityBuilder.build();
+    String url = "face/:version/active-liveness";
+    String method = "POST";
 
-    Request request = new Request.RequestBuilder("face/:version/active" +
-        "-liveness",
-        "POST").body(body).build();
+    MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
+    Util.addImageToFormData(bodyBuilder, "image", param.image);
+    bodyBuilder.addTextBody("gesture-code", param.gestureCode);
+    HttpEntity body = bodyBuilder.build();
 
-    String response;
+    Request request = new Request.RequestBuilder(url, method)
+        .body(body)
+        .build();
 
-    try {
-      response = Util.visionFetch(this.config, request);
-    } catch (Exception e) {
-      response = e.getMessage();
-    }
-
-    return response;
+    return Util.visionFetch(this.config.getConfig(newSettings), request);
   }
 
-  public static class MatchParam {
-    private final String captured;
-    private final String stored;
-    private final HashMap<String, String> map;
-
-    public MatchParam(String captured, String stored) {
-      this.captured = captured;
-      this.stored = stored;
-
+  public record MatchParam(String captured, String stored) {
+    @Override
+    public String toString() {
       HashMap<String, String> map = new HashMap<>();
       map.put("captured", this.captured);
       map.put("stored", this.stored);
 
-      this.map = map;
-    }
-
-    @Override
-    public String toString() {
-      return Util.json(this.map);
+      return Util.json(map, 2);
     }
   }
 
-  public static class ActiveLivenessParam {
-    private final String image;
-    private final String gestureCode;
-    private final HashMap<String, String> map;
-
-    public ActiveLivenessParam(String image, String gestureCode) {
-      this.image = image;
-      this.gestureCode = gestureCode;
-
+  public record ActiveLivenessParam(String image, String gestureCode) {
+    @Override
+    public String toString() {
       HashMap<String, String> map = new HashMap<>();
       map.put("image", this.image);
       map.put("gestureCode", this.gestureCode);
 
-      this.map = map;
-    }
-
-    @Override
-    public String toString() {
-      return Util.json(this.map);
+      return Util.json(map, 2);
     }
   }
 

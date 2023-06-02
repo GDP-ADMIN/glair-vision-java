@@ -14,56 +14,31 @@ public class Ocr {
     this.config = config;
   }
 
-  public String ktp(String imagePath) {
-    logger.info("OCR - KTP " + new KtpParam(imagePath));
-
-    // Add Image to Form Data
-    MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-    Util.addImageToFormData(multipartEntityBuilder, "image", imagePath);
-    HttpEntity body = multipartEntityBuilder.build();
-
-    // Create Request
-    Request request = new Request.RequestBuilder("ocr/:version/ktp",
-        "POST").body(body).build();
-
-    String response;
-
-    try {
-      response = Util.visionFetch(this.config, request);
-    } catch (Exception e) {
-      response = e.getMessage();
-    }
-
-    return response;
+  public String ktp(KtpParam param) throws Exception {
+    return ktp(param, this.config.getSettings());
   }
 
-  public String ktp(String imagePath, Settings newSettings) {
-    Config config1 = this.config.getConfig(newSettings);
-    logger.info("OCR - KTP " + new KtpParam(imagePath));
+  public String ktp(KtpParam param, Settings newSettings) throws Exception {
+    logger.info("OCR - KTP " + param);
 
-    // Add Image to Form Data
-    MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-    Util.addImageToFormData(multipartEntityBuilder, "image", imagePath);
-    HttpEntity body = multipartEntityBuilder.build();
+    String url = "ocr/:version/ktp";
+    String method = "POST";
 
-    Request request = new Request.RequestBuilder("ocr/:version/ktp",
-        "POST").body(body).build();
+    MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
+    Util.addImageToFormData(bodyBuilder, "image", param.image);
+    HttpEntity body = bodyBuilder.build();
 
-    String response;
+    Request request = new Request.RequestBuilder(url, method)
+        .body(body)
+        .build();
 
-    try {
-      response = Util.visionFetch(this.config, request);
-    } catch (Exception e) {
-      response = e.getMessage();
-    }
-
-    return response;
+    return Util.visionFetch(this.config.getConfig(newSettings), request);
   }
 
-  private record KtpParam(String image) {
+  public record KtpParam(String image) {
     @Override
-      public String toString() {
-        return Util.json("image", this.image);
-      }
+    public String toString() {
+      return Util.json("image", this.image);
     }
+  }
 }
