@@ -22,15 +22,34 @@
 1. JDK 17 or later
 2. Gradle 8.1.1 or later
 
-
 ## Installation
 
 ### Gradle
 
-Add this dependency to your project's build file:
+Add this dependencies to your project's build file:
 
 ```groovy
+implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
 implementation 'com.glair:glair-vision-java:0.0.1'
+```
+
+Add a file named `log4j2.xml` inside `src/main/resources` to enable logging
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="[%d{ISO8601}] %-5level GLAIR Vision SDK: %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="ConsoleAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>
 ```
 
 ### Others
@@ -42,8 +61,9 @@ You'll need to manually install the following JARs:
    1. Add this dependency to your project's build file:
       
 ```groovy
+implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
 implementation files('glairVision-0.0.1.jar')
-```
+``` 
 
 ## Usage
 
