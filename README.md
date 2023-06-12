@@ -12,30 +12,46 @@
   GLAIR Vision Java SDK
 <p>
 
+<p align="center">
+    <a href="https://github.com/glair-ai/glair-vision-java/releases"><img src="https://img.shields.io/jitpack/v/@glair/vision" alt="Latest Release"></a>
+    <a href="https://github.com/glair-ai/glair-vision-java/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@glair/vision" alt="License"></a>
+</p>
+
 ## Requirement
 
-You need <span style="color: green">**JDK version 17 or higher**</span>. For local development, we recommend to use [SDKMAN](https://sdkman.io/)
+1. JDK 17 or later
+2. Gradle 8.1.1 or later
+
 
 ## Installation
 
-### Maven
+### Gradle
 
-_in development_.
+Add this dependency to your project's build file:
 
-### Jar
+```groovy
+implementation 'com.glair:glair-vision-java:0.0.1'
+```
 
-1. Download X.jar
-2. Put the jar in the same level as `build.gradle`
-3. Add `implementation files('X.jar')` in `build.gradle`
-4. Add the library to the IDE, so it will not produce error while in development
+### Others
+                            
+You'll need to manually install the following JARs:
+
+1. [GLAIR Vision JAR](https://drive.google.com/file/d/1D6PUyP_C5AdekwcFjKFu5rpaMp9yg-O8/view?usp=sharing)
+   1. Put the jar in the same level as `build.gradle`
+   1. Add this dependency to your project's build file:
+      
+```groovy
+implementation files('glairVision-0.0.1.jar')
+```
 
 ## Usage
 
 The package needs to be configured with your credentials, see [here](https://docs.glair.ai/authentication) for more details.
 
 ```java
-import x.Settings;
-import x.Vision;
+import glair.vision.Settings;
+import glair.vision.Vision;
 
 public class App {
    public static void main(String[] args) {
@@ -50,33 +66,7 @@ public class App {
 }
 ```
 
-Afterwards, you can use the provided functions to access GLAIR Vision API:
-
-1. [OCR](#ocr)
-2. [Face Biometric](#face-biometric)
-3. [Session](#session)
-4. [Identity](#identity)
-
-## Configuration
-
-The SDK can be initialized with several options:
-
-```java
-import x.Settings;
-
-public class App {
-   public static void main(String[] args) {
-      Settings settings =
-         new Settings.SettingsBuilder()
-            .baseUrl("https://api.vision.glair.ai")
-            .apiVersion("v1")
-            .apiKey("default-api-key")
-            .username("default-username")
-            .password("default-password")
-            .build();
-   }
-}
-```
+The SDK's settings can be initialized with several options:
 
 | Option       | Default                       | Description                         |
 | ------------ | ----------------------------- | ----------------------------------- |
@@ -86,31 +76,54 @@ public class App {
 | `username`   | `default-username`            | Your username                       |
 | `password`   | `default-password`            | Your password                       |
 
+
+Afterwards, you can use the provided functions to access GLAIR Vision API:
+
+1. [OCR](#ocr)
+2. [Face Biometric](#face-biometric)
+3. [Session](#session)
+4. [Identity](#identity)
+
 ## Override Configuration
 
 You can override the configuration values for one-time only:
 
 ```java
-Settings settings =
-   new Settings.SettingsBuilder()
-      .username("xxx")
-      .password("yyy")
-      .apiKey("zzz")
-      .build();
+import glair.vision.Settings;
+import glair.vision.Vision;
 
-String imagePath = "/path/to/image.jpg";
-String response = "";
+public class App {
+   public static void main(String[] args) {
+      Settings settings = new Settings.Builder()
+              .username("username")
+              .password("password")
+              .apiKey("api-key")
+              .build();
 
-try {
-  Ocr.KtpParam param = new Ocr.KtpParam(imagePath);
-  response = vision
-      .ocr()
-      .ktp(param, settings);
-} catch (Exception e) {
-  response = e.getMessage();
+      Vision vision = new Vision(settings);
+      
+      String imagePath = "/path/to/image.jpg";
+      String response = "";
+      
+      try {
+         Settings newSettings = new Settings.Builder()
+                 .apiKey("new-api-key")
+                 .build();
+         Ocr.KtpParam param = new Ocr.KtpParam(imagePath);
+         response = vision
+                 .ocr()
+                 .ktp(param, newSettings);
+         // The Configurations' values that will be used on KTP are
+         // username: username
+         // password: password
+         // apiKey: new-api-key
+      } catch (Exception e) {
+         response = e.getMessage();
+      }
+
+      System.out.println("Response: " + response);
+   }
 }
-
-System.out.println("Response: " + response);
 ```
 
 The second parameter is a new `Settings`.
@@ -123,9 +136,10 @@ _in development._
 ## FAQ
 
 1. IntelliJ IDE can't find the module?
-    - Remember to add the dependency on `build.gradle(.kts)`
-    - Import the library to IDE by File > Project Structure > Modules > 
-      Dependencies > Add the JAR > OK
+   - Only occured when library installation using JAR
+   - Remember to add the dependency on `build.gradle(.kts)`
+   - Import the library to IDE by File > Project Structure > Modules > 
+     Dependencies > Add the JAR > OK
 
 ---
 

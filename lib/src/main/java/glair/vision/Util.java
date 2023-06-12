@@ -31,7 +31,6 @@ public class Util {
     String apiEndpoint = config.getUrl(path);
 
     logger.debug("URL " + Util.json("url", apiEndpoint));
-    //    logger.debug(config);
 
     CloseableHttpClient httpClient = HttpClients.createDefault();
     HttpRequestBase httpRequestBase;
@@ -49,7 +48,7 @@ public class Util {
 
       httpPost.setHeader(HttpHeaders.AUTHORIZATION, config.getBasicAuth());
       httpPost.setHeader("x-api-key", config.getApiKey());
-//      httpPost.setHeader("GLAIR-Vision-Java-SDK-Version", "0.0.1-beta.1");
+      httpPost.setHeader("GLAIR-Vision-Java-SDK-Version", "0.0.1-beta.1");
 
       if (body != null) {
         httpPost.setEntity(body);

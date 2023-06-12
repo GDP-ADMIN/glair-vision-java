@@ -7,50 +7,54 @@
  * This project uses @Incubating APIs which are subject to change.
  */
 
-// ShadowJar
-//import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
     id 'application'
+    id 'maven-publish'
 
     // ShadowJar
-//    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 // Main App
-version = '0.1.0'
+version = '0.0.1'
 mainClassName = 'glair.vision.App'
+group 'com.glair'
 
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
+
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     // ShadowJar
-//    shadow localGroovy()
-//    shadow gradleApi()
+    shadow localGroovy()
+    shadow gradleApi()
 
     implementation 'org.apache.httpcomponents:httpclient:4.5.14'
     implementation 'org.apache.httpcomponents:httpmime:4.5.14'
-    implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
     implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
-//    implementation 'com.google.guava:guava:31.1-jre'
 }
 
-//tasks.named('shadowJar', ShadowJar) {
-//    enableRelocation true
-//}
+shadowJar {
+    dependencies {
+        exclude(dependency {
+            it.moduleGroup == 'org.apache.logging.log4j'
+        })
+    }
 
-testing {
-    suites {
-        // Configure the built-in test suite
-        test {
-            // Use JUnit Jupiter test framework
-            useJUnitJupiter('5.9.1')
-        }
+    relocate 'org.apache.httpcomponents:httpclient:4.5.14', 'shadow.org.' +
+            'apache.httpcomponents:httpclient:4.5.14'
+    relocate 'org.apache.httpcomponents:httpmime:4.5.14', 'shadow.org.apache.' +
+            'httpcomponents:httpmime:4.5.14'
+}
+
+jar {
+    manifest {
+        attributes 'Multi-Release': 'true'
     }
 }
 
@@ -58,5 +62,18 @@ testing {
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = "https://jitpack.io"
+        }
     }
 }
