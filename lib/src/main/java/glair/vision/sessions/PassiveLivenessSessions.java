@@ -77,11 +77,12 @@ public class PassiveLivenessSessions {
     }
 
     public static class Builder {
-      private final String successUrl;
+      private String successUrl;
       private String cancelUrl;
 
-      public Builder(String successUrl) {
+      public Builder successUrl(String successUrl) {
         this.successUrl = successUrl;
+        return this;
       }
 
       public Builder cancelUrl(String cancelUrl) {
@@ -89,7 +90,8 @@ public class PassiveLivenessSessions {
         return this;
       }
 
-      public CreateParam build() {
+      public CreateParam build() throws Exception {
+        Util.require("Success URL", this.successUrl);
         return new CreateParam(this);
       }
     }

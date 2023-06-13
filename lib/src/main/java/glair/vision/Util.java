@@ -160,4 +160,9 @@ public class Util {
     return stringBuilder.toString();
   }
 
+  public static void require(String key, String value) throws Exception {
+    if (value == null) {
+      throw new Exception("Require " + key);
+    }
+  }
 }

@@ -21,7 +21,7 @@ public class Identity {
   }
 
   public String verification(VerificationParam param, Settings newSettings) throws Exception {
-    logger.info("Identity - Basic Verification");
+    logger.info("Identity - Basic Verification " + param);
 
     String url = "identity/:version/verification";
     String method = "POST";
@@ -45,7 +45,7 @@ public class Identity {
 
   public String faceVerification(FaceVerificationParam param,
                                  Settings newSettings) throws Exception {
-    logger.info("Identity - Face Verification");
+    logger.info("Identity - Face Verification " + param);
 
     String url = "identity/:version/face-verification";
     String method = "POST";
@@ -119,7 +119,11 @@ public class Identity {
         return this;
       }
 
-      public VerificationParam build() {
+      public VerificationParam build() throws Exception {
+        Util.require("NIK", this.nik);
+        Util.require("Name", this.name);
+        Util.require("Date of Birth", this.dateOfBirth);
+
         return new VerificationParam(this);
       }
     }
@@ -193,7 +197,12 @@ public class Identity {
         return this;
       }
 
-      public FaceVerificationParam build() {
+      public FaceVerificationParam build() throws Exception {
+        Util.require("NIK", this.nik);
+        Util.require("Name", this.name);
+        Util.require("Date of Birth", this.dateOfBirth);
+        Util.require("Face Image", this.faceImage);
+
         return new FaceVerificationParam(this);
       }
     }

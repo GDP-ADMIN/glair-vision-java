@@ -1,5 +1,6 @@
 package glair.vision;
 
+import glair.vision.sessions.KtpSessions;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -9,9 +10,15 @@ public class Ocr {
   private static final Logger logger = LogManager.getLogger();
 
   private final Config config;
+  private final KtpSessions ktpSessions;
 
   public Ocr(Config config) {
     this.config = config;
+    this.ktpSessions = new KtpSessions(config);
+  }
+
+  public KtpSessions ktpSessions() {
+    return this.ktpSessions;
   }
 
   public String ktp(KtpParam param) throws Exception {

@@ -58,7 +58,7 @@ You'll need to manually install the following JARs:
 
 1. [GLAIR Vision JAR](https://drive.google.com/file/d/1D6PUyP_C5AdekwcFjKFu5rpaMp9yg-O8/view?usp=sharing)
    1. Put the jar in the same level as `build.gradle`
-   1. Add this dependency to your project's build file:
+   2. Add this dependency to your project's build file:
       
 ```groovy
 implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
@@ -156,7 +156,7 @@ _in development._
 ## FAQ
 
 1. IntelliJ IDE can't find the module?
-   - Only occured when library installation using JAR
+   - Should be only occured when library installation using JAR
    - Remember to add the dependency on `build.gradle(.kts)`
    - Import the library to IDE by File > Project Structure > Modules > 
      Dependencies > Add the JAR > OK
@@ -271,6 +271,30 @@ System.out.println("Response: " + response);
 
 ## Session
 
+### KTP Sessions
+
+Create session
+
+```java
+String response = "";
+
+try {
+   KtpSessions.CreateParam param =
+      new KtpSessions.CreateParam.Builder()
+         .successUrl("https://docs.glair.ai?success=true")
+         .cancelUrl("https://docs.glair.ai?success=false")
+         .build();
+   response = vision
+      .ocr()
+      .ktpSessions()
+      .create(param);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
+
 ### Passive Liveness Sessions
 
 Create session
@@ -280,8 +304,8 @@ String response = "";
 
 try {
    PassiveLivenessSessions.CreateParam param =
-      new PassiveLivenessSessions.CreateParam.Builder(
-         "https://docs.glair.ai?success=true")
+      new PassiveLivenessSessions.CreateParam.Builder()
+         .successUrl("https://docs.glair.ai?success=true")
          .cancelUrl("https://docs.glair.ai?success=false")
          .build();
    response = vision
@@ -324,8 +348,8 @@ String response = "";
 
 try {
    ActiveLivenessSessions.CreateParam param =
-      new ActiveLivenessSessions.CreateParam.Builder(
-         "https://docs.glair.ai?success=true")
+      new ActiveLivenessSessions.CreateParam.Builder()
+         .successUrl("https://docs.glair.ai?success=true")
          .cancelUrl("https://docs.glair.ai?success=false")
          .numberOfGestures(2)
          .build();
