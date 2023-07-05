@@ -4,7 +4,6 @@
         <Console name="ConsoleAppender" target="SYSTEM_OUT">
             <PatternLayout
                     pattern="[%d{ISO8601}] %-5level GLAIR Vision SDK: %msg%n"/>
-            <!--                    pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%-5level] GLAIR Vision SDK: %msg%n"/>-->
         </Console>
     </Appenders>
     <Loggers>

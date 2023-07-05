@@ -54,7 +54,7 @@ public class Identity {
     bodyBuilder.addTextBody("nik", param.getNik());
     bodyBuilder.addTextBody("name", param.getName());
     bodyBuilder.addTextBody("date_of_birth", param.getDateOfBirth());
-    Util.addImageToFormData(bodyBuilder, "face_image", param.getFaceImage());
+    Util.addFileToFormData(bodyBuilder, "face_image", param.getFaceImage());
     HttpEntity body = bodyBuilder.build();
 
     Request request = new Request.RequestBuilder(url, method)

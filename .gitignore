@@ -6,3 +6,6 @@ build
 
 .idea
 .DS_Store
+
+App.java
+gradle.properties

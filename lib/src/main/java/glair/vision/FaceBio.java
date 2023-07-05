@@ -64,7 +64,7 @@ public class FaceBio {
     String method = "POST";
 
     MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
-    Util.addImageToFormData(bodyBuilder, "image", param.image);
+    Util.addFileToFormData(bodyBuilder, "image", param.image);
     HttpEntity body = bodyBuilder.build();
 
     Request request = new Request.RequestBuilder(url, method)
@@ -86,7 +86,7 @@ public class FaceBio {
     String method = "POST";
 
     MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
-    Util.addImageToFormData(bodyBuilder, "image", param.image);
+    Util.addFileToFormData(bodyBuilder, "image", param.image);
     bodyBuilder.addTextBody("gesture-code", param.gestureCode);
     HttpEntity body = bodyBuilder.build();
 

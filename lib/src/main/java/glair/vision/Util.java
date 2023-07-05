@@ -14,7 +14,6 @@ import org.apache.http.client.methods.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -79,11 +78,11 @@ public class Util {
     throw new Exception(responseBody);
   }
 
-  public static void addImageToFormData(MultipartEntityBuilder entityBuilder,
-                                        String name, String imagePath) {
-    File imageFile = new File(imagePath);
-    FileBody fileBody = new FileBody(imageFile);
-    entityBuilder.addPart(name, fileBody);
+  public static void addFileToFormData(MultipartEntityBuilder entityBuilder,
+                                       String name, String filePath) throws Exception {
+    File file = new File(filePath);
+    entityBuilder.addBinaryBody(name, file,
+        ContentType.create(Files.probeContentType(file.toPath())), file.getName());
   }
 
   public static HttpEntity createJsonBody(HashMap<String, String> map) {

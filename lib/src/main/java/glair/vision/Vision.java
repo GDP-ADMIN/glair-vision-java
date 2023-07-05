@@ -11,6 +11,8 @@ public class Vision {
     this.ocr = new Ocr(this.config);
     this.faceBio = new FaceBio(this.config);
     this.identity = new Identity(this.config);
+
+    System.setProperty("logback.configurationFile", "glair-logback.xml");
   }
 
   public Config config() {

@@ -42,14 +42,14 @@ public class ActiveLivenessSessions {
     return Util.visionFetch(this.config.getConfig(newSettings), request);
   }
 
-  public String retrieve(RetrieveParam param) throws Exception {
-    return retrieve(param, this.config.getSettings());
+  public String retrieve(String sid) throws Exception {
+    return retrieve(sid, this.config.getSettings());
   }
 
-  public String retrieve(RetrieveParam param, Settings newSettings) throws Exception {
-    logger.info("Active Liveness Sessions - Retrieve " + param);
+  public String retrieve(String sid, Settings newSettings) throws Exception {
+    logger.info("Active Liveness Sessions - Retrieve " + Util.json("sid", sid));
 
-    String url = "face/:version/active-liveness-sessions/" + param.sid;
+    String url = "face/:version/active-liveness-sessions/" + sid;
     String method = "GET";
 
     Request request = new Request.RequestBuilder(url, method).build();
@@ -102,13 +102,6 @@ public class ActiveLivenessSessions {
         Util.require("Success URL", this.successUrl);
         return new CreateParam(this);
       }
-    }
-  }
-
-  public record RetrieveParam(String sid) {
-    @Override
-    public String toString() {
-      return Util.json("sid", sid);
     }
   }
 }

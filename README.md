@@ -13,27 +13,23 @@
 <p>
 
 <p align="center">
-    <a href="https://github.com/glair-ai/glair-vision-java/releases"><img src="https://img.shields.io/jitpack/v/@glair/vision" alt="Latest Release"></a>
-    <a href="https://github.com/glair-ai/glair-vision-java/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@glair/vision" alt="License"></a>
+    <a href="https://central.sonatype.com/artifact/io.github.vincentchuardi/test-publish"><img src="https://img.shields.io/maven-central/v/io.github.vincentchuardi/test-publish.svg" alt="Latest Release"></a>
+    <a href="https://github.com/glair-ai-shadow/glair-vision-java/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@glair/vision" alt="License"></a>
 </p>
 
-## Requirement
+## Requirement to Develop
 
 1. JDK 17 or later
-2. Gradle 8.1.1 or later
+1. Gradle 8.1.1 or later
+1. IntelliJ IDEA 2023 or later
 
 ## Installation
 
-### Gradle
+You can refer to [this page](https://central.sonatype.com/artifact/io.github.vincentchuardi/test-publish)
 
-Add this dependencies to your project's build file:
+After installing the GLAIR Vision SDK, you also need to install the [logging library](https://central.sonatype.com/artifact/org.apache.logging.log4j/log4j/2.20.0/overview).
 
-```groovy
-implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
-implementation 'com.glair:glair-vision-java:0.0.1'
-```
-
-Add a file named `log4j2.xml` inside `src/main/resources` to enable logging
+Add a file named `log4j2.xml` inside `src/main/resources` to output logs.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -52,19 +48,6 @@ Add a file named `log4j2.xml` inside `src/main/resources` to enable logging
 </Configuration>
 ```
 
-### Others
-                            
-You'll need to manually install the following JARs:
-
-1. [GLAIR Vision JAR](https://drive.google.com/file/d/1D6PUyP_C5AdekwcFjKFu5rpaMp9yg-O8/view?usp=sharing)
-   1. Put the jar in the same level as `build.gradle`
-   2. Add this dependency to your project's build file:
-      
-```groovy
-implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
-implementation files('glairVision-0.0.1.jar')
-``` 
-
 ## Usage
 
 The package needs to be configured with your credentials, see [here](https://docs.glair.ai/authentication) for more details.
@@ -80,7 +63,7 @@ public class App {
          .password("password")
          .apiKey("api-key")
          .build();
-      
+
       Vision vision = new Vision(settings);
    }
 }
@@ -95,7 +78,6 @@ The SDK's settings can be initialized with several options:
 | `apiKey`     | `default-api-key`             | Your API Key                        |
 | `username`   | `default-username`            | Your username                       |
 | `password`   | `default-password`            | Your password                       |
-
 
 Afterwards, you can use the provided functions to access GLAIR Vision API:
 
@@ -121,10 +103,10 @@ public class App {
               .build();
 
       Vision vision = new Vision(settings);
-      
+
       String imagePath = "/path/to/image.jpg";
       String response = "";
-      
+
       try {
          Settings newSettings = new Settings.Builder()
                  .apiKey("new-api-key")
@@ -146,20 +128,15 @@ public class App {
 }
 ```
 
-The second parameter is a new `Settings`.
-It will be merged with the original `Settings` you set when instantiating the Vision instance.
-
-## Usage with Frameworks
-
-_in development._
+The second parameter is a new `Settings` object.
+It will be merged with the original `Settings` that you set when instantiating the Vision instance.
 
 ## FAQ
 
 1. IntelliJ IDE can't find the module?
-   - Should be only occured when library installation using JAR
-   - Remember to add the dependency on `build.gradle(.kts)`
-   - Import the library to IDE by File > Project Structure > Modules > 
-     Dependencies > Add the JAR > OK
+   - This issue may occur when the library is installed using a JAR file.
+   - Please ensure that you have added the dependency to your `build.gradle` file.
+   - To import the library into the IDE, follow these steps: File > Project Structure > Modules > Dependencies > Add the JAR > OK.
 
 ---
 
@@ -183,29 +160,163 @@ try {
 System.out.println("Response: " + response);
 ```
 
+The `KtpParam` class is used for the necessary KTP API. It consists of the `imagePath` and the future `condition` attributes.
+
 ### NPWP
 
-_in development_.
+```java
+String imagePath = "/path/to/image.jpg";
+String response = "";
+
+try {
+   response = vision
+      .ocr()
+      .npwp(imagePath);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
 
 ### KK
 
-_in development_.
+```java
+String imagePath = "/path/to/image.jpg";
+String response = "";
+
+try {
+   response = vision
+      .ocr()
+      .kk(imagePath);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
 
 ### STNK
 
-_in development_.
+```java
+String imagePath = "/path/to/image.jpg";
+String response = "";
+
+try {
+   response = vision
+      .ocr()
+      .stnk(imagePath);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
 
 ### BPKB
 
-_in development_.
+```java
+String imagePath = "/path/to/image.jpg";
+String response = "";
+
+try {
+   Ocr.BpkbParam param = new Ocr.BpkbParam(imagePath, 1);
+   response = vision
+      .ocr()
+      .bpkb(param);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
+
+The `BpkbParam` class is used for the necessary BPKB API. It consists of the `imagePath` and `page` attributes. The `page` attribute is used only when you need specific page from the BPKB document.
 
 ### Passport
 
-_in development_.
+```java
+String imagePath = "/path/to/image.jpg";
+String response = "";
+
+try {
+   response = vision
+      .ocr()
+      .passport(imagePath);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
 
 ### License Plate
 
-_in development_.
+```java
+String imagePath = "/path/to/image.jpg";
+String response = "";
+
+try {
+   response = vision
+      .ocr()
+      .plate(imagePath);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
+
+### General Document
+
+```java
+String imagePath = "/path/to/image.jpg";
+String response = "";
+
+try {
+   response = vision
+      .ocr()
+      .generalDocument(imagePath);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
+
+### Invoice
+
+```java
+String imagePath = "/path/to/image.jpg";
+String response = "";
+
+try {
+   response = vision
+      .ocr()
+      .invoice(imagePath);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
+
+### Receipt
+
+```java
+String imagePath = "/path/to/image.jpg";
+String response = "";
+
+try {
+   response = vision
+      .ocr()
+      .receipt(imagePath);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
 
 ## Face Biometric
 
@@ -217,7 +328,7 @@ String storedPath = "/path/to/stored.jpg";
 String response = "";
 
 try {
-   FaceBio.MatchParam matchParam = new FaceBio.MatchParam(capturedPath, 
+   FaceBio.MatchParam matchParam = new FaceBio.MatchParam(capturedPath,
         storedPath);
    response = vision
       .faceBio()
@@ -295,6 +406,23 @@ try {
 System.out.println("Response: " + response);
 ```
 
+Retrieve Session
+
+```java
+String response = "";
+
+try {
+   response = vision
+      .faceBio()
+      .ktpSessions()
+      .retrieve("session-id");
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
+
 ### Passive Liveness Sessions
 
 Create session
@@ -325,13 +453,10 @@ Retrieve Session
 String response = "";
 
 try {
-   PassiveLivenessSessions.RetrieveParam param =
-      new PassiveLivenessSessions.RetrieveParam(
-         "session-id");
    response = vision
       .faceBio()
       .passiveLivenessSessions()
-      .retrieve(param);
+      .retrieve("session-id");
 } catch (Exception e) {
    response = e.getMessage();
 }
@@ -370,13 +495,10 @@ Retrieve Session
 String response = "";
 
 try {
-   ActiveLivenessSessions.RetrieveParam param =
-      new ActiveLivenessSessions.RetrieveParam(
-         "session-id");
    response = vision
       .faceBio()
       .activeLivenessSessions()
-      .retrieve(param);
+      .retrieve("session-id");
 } catch (Exception e) {
    response = e.getMessage();
 }

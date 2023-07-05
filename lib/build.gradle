@@ -7,26 +7,28 @@
  * This project uses @Incubating APIs which are subject to change.
  */
 
+//import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
     id 'application'
     id 'maven-publish'
+    id 'signing'
 
     // ShadowJar
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+//    id "io.freefair.lombok" version "8.1.0"
 }
 
 // Main App
-version = '0.0.1'
+version = '0.0.1-beta.1'
 mainClassName = 'glair.vision.App'
-group 'com.glair'
+group 'ai.glair'
 
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
-
-    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -37,6 +39,25 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient:4.5.14'
     implementation 'org.apache.httpcomponents:httpmime:4.5.14'
     implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+
+//    compileOnly 'org.projectlombok:lombok:1.18.28'
+//    annotationProcessor 'org.projectlombok:lombok:1.18.28'
+//    implementation 'org.slf4j:slf4j-api:1.7.32'
+//    runtimeOnly 'org.slf4j:slf4j-simple:1.7.32'
+//    implementation('ch.qos.logback:logback-classic:1.2.9') {
+//        exclude group: 'org.slf4j', module: 'slf4j-simple'
+//    }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
 }
 
 shadowJar {
@@ -56,6 +77,7 @@ jar {
     manifest {
         attributes 'Multi-Release': 'true'
     }
+    archivesBaseName 'glair-vision'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -67,13 +89,54 @@ java {
 
 publishing {
     publications {
-        maven(MavenPublication) {
+        mavenJava(MavenPublication) {
+            groupId = 'ai.glair'
+            artifactId = 'glair-vision'
+            version = '0.0.1-beta.1'
             from components.java
+
+            pom {
+                name = 'glair-vision'
+                description = 'GLAIR Vision SDK. Our SDK lets you make server-side HTTP requests from your server to GLAIR Vision API endpoints. It contains boilerplate code so you can get up and running in just a few lines of code..'
+                url = 'https://github.com/glair-ai-shadow/glair-vision-java'
+                inceptionYear = '2023'
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'http://www.opensource.org/licenses/mit-license.php'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'vincentchuardi'
+                        name = 'Vincent Chuardi'
+                        email = 'vincent.chuardi@gdplabs.id'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:git:github.com/glair-ai-shadow/glair-vision-java.git'
+                    developerConnection = 'scm:git:ssh://github.com/glair-ai-shadow/glair-vision-java.git'
+                    url = 'https://github.com/glair-ai-shadow/glair-vision-java'
+                }
+            }
         }
     }
+
     repositories {
         maven {
-            url = "https://jitpack.io"
+            name = "OSSRH"
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = project.properties["ossrhUsername"]
+                password = project.properties["ossrhPassword"]
+            }
         }
     }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
