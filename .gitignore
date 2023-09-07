@@ -9,3 +9,4 @@ build
 
 App.java
 gradle.properties
+config.properties

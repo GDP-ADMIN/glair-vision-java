@@ -7,8 +7,6 @@
  * This project uses @Incubating APIs which are subject to change.
  */
 
-//import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
@@ -18,7 +16,6 @@ plugins {
 
     // ShadowJar
     id 'com.github.johnrengelman.shadow' version '8.1.1'
-//    id "io.freefair.lombok" version "8.1.0"
 }
 
 // Main App
@@ -38,15 +35,17 @@ dependencies {
 
     implementation 'org.apache.httpcomponents:httpclient:4.5.14'
     implementation 'org.apache.httpcomponents:httpmime:4.5.14'
-    implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
 
-//    compileOnly 'org.projectlombok:lombok:1.18.28'
-//    annotationProcessor 'org.projectlombok:lombok:1.18.28'
-//    implementation 'org.slf4j:slf4j-api:1.7.32'
-//    runtimeOnly 'org.slf4j:slf4j-simple:1.7.32'
-//    implementation('ch.qos.logback:logback-classic:1.2.9') {
-//        exclude group: 'org.slf4j', module: 'slf4j-simple'
-//    }
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 java {
@@ -61,12 +60,6 @@ javadoc {
 }
 
 shadowJar {
-    dependencies {
-        exclude(dependency {
-            it.moduleGroup == 'org.apache.logging.log4j'
-        })
-    }
-
     relocate 'org.apache.httpcomponents:httpclient:4.5.14', 'shadow.org.' +
             'apache.httpcomponents:httpclient:4.5.14'
     relocate 'org.apache.httpcomponents:httpmime:4.5.14', 'shadow.org.apache.' +
@@ -98,7 +91,7 @@ publishing {
             pom {
                 name = 'glair-vision'
                 description = 'GLAIR Vision SDK. Our SDK lets you make server-side HTTP requests from your server to GLAIR Vision API endpoints. It contains boilerplate code so you can get up and running in just a few lines of code..'
-                url = 'https://github.com/glair-ai-shadow/glair-vision-java'
+                url = 'https://github.com/glair-ai/glair-vision-java'
                 inceptionYear = '2023'
 
                 licenses {
@@ -117,9 +110,9 @@ publishing {
                 }
 
                 scm {
-                    connection = 'scm:git:git:github.com/glair-ai-shadow/glair-vision-java.git'
-                    developerConnection = 'scm:git:ssh://github.com/glair-ai-shadow/glair-vision-java.git'
-                    url = 'https://github.com/glair-ai-shadow/glair-vision-java'
+                    connection = 'scm:git:git:github.com/glair-ai/glair-vision-java.git'
+                    developerConnection = 'scm:git:ssh://github.com/glair-ai/glair-vision-java.git'
+                    url = 'https://github.com/glair-ai/glair-vision-java'
                 }
             }
         }

@@ -27,49 +27,28 @@
 
 You can refer to [this page](https://central.sonatype.com/artifact/io.github.vincentchuardi/test-publish)
 
-After installing the GLAIR Vision SDK, you also need to install the [logging library](https://central.sonatype.com/artifact/org.apache.logging.log4j/log4j/2.20.0/overview).
-
-Add a file named `log4j2.xml` inside `src/main/resources` to output logs.
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
-    <Appenders>
-        <Console name="ConsoleAppender" target="SYSTEM_OUT">
-            <PatternLayout
-                    pattern="[%d{ISO8601}] %-5level GLAIR Vision SDK: %msg%n"/>
-        </Console>
-    </Appenders>
-    <Loggers>
-        <Root level="info">
-            <AppenderRef ref="ConsoleAppender"/>
-        </Root>
-    </Loggers>
-</Configuration>
-```
-
 ## Usage
 
 The package needs to be configured with your credentials, see [here](https://docs.glair.ai/authentication) for more details.
 
 ```java
-import glair.vision.Settings;
 import glair.vision.Vision;
+import glair.vision.model.VisionSettings;
 
 public class App {
    public static void main(String[] args) {
-      Settings settings = new Settings.Builder()
+      VisionSettings visionSettings = new VisionSettings.Builder()
          .username("username")
          .password("password")
          .apiKey("api-key")
          .build();
 
-      Vision vision = new Vision(settings);
+      Vision vision = new Vision(visionSettings);
    }
 }
 ```
 
-The SDK's settings can be initialized with several options:
+The SDK's visionSettings can be initialized with several options:
 
 | Option       | Default                       | Description                         |
 | ------------ | ----------------------------- | ----------------------------------- |
@@ -91,30 +70,30 @@ Afterwards, you can use the provided functions to access GLAIR Vision API:
 You can override the configuration values for one-time only:
 
 ```java
-import glair.vision.Settings;
 import glair.vision.Vision;
+import glair.vision.model.VisionSettings;
 
 public class App {
    public static void main(String[] args) {
-      Settings settings = new Settings.Builder()
+      VisionSettings visionSettings = new VisionSettings.Builder()
               .username("username")
               .password("password")
               .apiKey("api-key")
               .build();
 
-      Vision vision = new Vision(settings);
+      Vision vision = new Vision(visionSettings);
 
       String imagePath = "/path/to/image.jpg";
       String response = "";
 
       try {
-         Settings newSettings = new Settings.Builder()
+         VisionSettings newVisionSettings = new VisionSettings.Builder()
                  .apiKey("new-api-key")
                  .build();
-         Ocr.KtpParam param = new Ocr.KtpParam(imagePath);
+
          response = vision
                  .ocr()
-                 .ktp(param, newSettings);
+                 .ktp(imagePath, newVisionSettings);
          // The Configurations' values that will be used on KTP are
          // username: username
          // password: password
@@ -128,8 +107,59 @@ public class App {
 }
 ```
 
-The second parameter is a new `Settings` object.
-It will be merged with the original `Settings` that you set when instantiating the Vision instance.
+The second parameter is a new `VisionSettings` object.
+It will be merged with the original `VisionSettings` that you set when instantiating the Vision instance.
+
+## Logging
+
+The GLAIR Vision SDK provides comprehensive logging capabilities to help you monitor and debug your application's interactions with GLAIR's services. By default, the SDK includes a logging output that you can customize to suit your needs.
+
+### Checking Logger Configuration
+
+To inspect the current logger configuration, you can use the `printLoggerConfig()` method within the `Vision` object. This allows you to see the current logging settings.
+
+```java
+VisionSettings visionSettings = new VisionSettings.Builder()
+   .username("username")
+   .password("password")
+   .apiKey("apiKey")
+   .build();
+
+Vision vision = new Vision(visionSettings);
+
+// Check the current logger configuration
+vision.printLoggerConfig();
+```
+
+### Customizing Logger Configuration
+
+You can customize the logger configuration when initializing the `Vision` object. This enables you to control the log level and log pattern according to your preferences.
+
+Here's how you can set up the logger configuration:
+
+```java
+VisionSettings visionSettings = new VisionSettings.Builder()
+   .username("username")
+   .password("password")
+   .apiKey("apiKey")
+   .build();
+
+// Define your custom logger configuration
+LoggerConfig loggerConfig = new LoggerConfig(LoggerConfig.INFO);
+
+Vision vision = new Vision(visionSettings, loggerConfig);
+```
+
+#### LoggerConfig Options
+
+The `LoggerConfig` class provides several options to tailor the logging behavior:
+
+| Option       | Default                                               | Description                                                                                                                                                                                                                                            |
+| ------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `logLevel`   | `LoggerConfig.INFO`                                   | Specifies the level of logging, ranging from `ERROR` (highest severity) to `WARN`, `INFO`, and `DEBUG` (lowest severity). Adjust this setting to control the verbosity of your logs.                                                                   |
+| `logPattern` | `[{timestamp}] [{level}] GLAIR Vision SDK: {message}` | Defines the format of log entries. You can customize the placement and content of log components using placeholders like `{timestamp}`, `{level}`, and `{message}`. Modify the log pattern to include additional context or change the display format. |
+
+By adjusting these options, you can fine-tune the logging behavior of the GLAIR Vision SDK to match your application's requirements.
 
 ## FAQ
 
@@ -149,10 +179,9 @@ String imagePath = "/path/to/image.jpg";
 String response = "";
 
 try {
-   Ocr.KtpParam param = new Ocr.KtpParam(imagePath);
    response = vision
       .ocr()
-      .ktp(param);
+      .ktp(imagePath);
 } catch (Exception e) {
    response = e.getMessage();
 }
@@ -160,7 +189,22 @@ try {
 System.out.println("Response: " + response);
 ```
 
-The `KtpParam` class is used for the necessary KTP API. It consists of the `imagePath` and the future `condition` attributes.
+### KTP Qualities
+
+```java
+String imagePath = "/path/to/image.jpg";
+String response = "";
+
+try {
+   response = vision
+      .ocr()
+      .ktpQualities(imagePath);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
 
 ### NPWP
 
@@ -215,12 +259,32 @@ System.out.println("Response: " + response);
 
 ### BPKB
 
+#### Without Specific Page
+
 ```java
 String imagePath = "/path/to/image.jpg";
 String response = "";
 
 try {
-   Ocr.BpkbParam param = new Ocr.BpkbParam(imagePath, 1);
+   BpkbParam param = new BpkbParam(imagePath);
+   response = vision
+      .ocr()
+      .bpkb(param);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
+
+#### With Specific Page
+
+```java
+String imagePath = "/path/to/image.jpg";
+String response = "";
+
+try {
+   BpkbParam param = new BpkbParam(imagePath, 1);
    response = vision
       .ocr()
       .bpkb(param);
@@ -259,7 +323,7 @@ String response = "";
 try {
    response = vision
       .ocr()
-      .plate(imagePath);
+      .licensePlate(imagePath);
 } catch (Exception e) {
    response = e.getMessage();
 }
@@ -328,7 +392,7 @@ String storedPath = "/path/to/stored.jpg";
 String response = "";
 
 try {
-   FaceBio.MatchParam matchParam = new FaceBio.MatchParam(capturedPath,
+   FaceMatchParam matchParam = new FaceMatchParam(capturedPath,
         storedPath);
    response = vision
       .faceBio()
@@ -347,11 +411,9 @@ String imagePath = "/path/to/image.jpg";
 String response = "";
 
 try {
-   FaceBio.PassiveLivenessParam param =
-      new FaceBio.PassiveLivenessParam(imagePath);
    response = vision
       .faceBio()
-      .passiveLiveness(param);
+      .passiveLiveness(imagePath);
 } catch (Exception e) {
    response = e.getMessage();
 }
@@ -366,8 +428,8 @@ String imagePath = "/path/to/image.jpg";
 String response = "";
 
 try {
-   FaceBio.ActiveLivenessParam param =
-      new FaceBio.ActiveLivenessParam(
+   ActiveLivenessParam param =
+      new ActiveLivenessParam(
          imagePath,
          "HAND_00000");
    response = vision
@@ -382,19 +444,32 @@ System.out.println("Response: " + response);
 
 ## Session
 
+When creating a session using the GLAIR Vision SDK, you'll need to use the `BasicSessionsParam` class as a parameter. `BasicSessionsParam` requires the `successUrl` to be provided in the constructor, and you can optionally set the `cancelUrl` using the `setCancelUrl` method.
+
+```java
+BasicSessionsParam param = new BasicSessionsParam("https://docs.glair.ai?success=true");
+param.setCancelUrl("https://docs.glair.ai?success=false");
+
+response = vision
+   .ocr()
+   .npwpSessions()
+   .create(param);
+```
+
 ### KTP Sessions
 
-Create session
+For KTP sessions, you'll use the `KtpSessionsParam` class, which is a class that inherits from `BasicSessionsParam`.
+
+#### Create Session without Qualities Detector
+
+You can create a KTP session without specifying the qualities detector as follows:
 
 ```java
 String response = "";
 
 try {
-   KtpSessions.CreateParam param =
-      new KtpSessions.CreateParam.Builder()
-         .successUrl("https://docs.glair.ai?success=true")
-         .cancelUrl("https://docs.glair.ai?success=false")
-         .build();
+   KtpSessionsParam param = new KtpSessionsParam("https://docs.glair.ai?success=true");
+
    response = vision
       .ocr()
       .ktpSessions()
@@ -406,15 +481,83 @@ try {
 System.out.println("Response: " + response);
 ```
 
-Retrieve Session
+#### Create Session with Qualities Detector
+
+To create a KTP session with the qualities detector enabled, use the following code:
+
+```java
+String response = "";
+
+try {
+   KtpSessionsParam param = new KtpSessionsParam("https://docs.glair.ai?success=true");
+   param.setQualitiesDetector(true);
+
+   response = vision
+      .ocr()
+      .ktpSessions()
+      .create(param);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
+
+#### Retrieve Session
+
+To retrieve a KTP session, you can use the following code:
 
 ```java
 String response = "";
 
 try {
    response = vision
-      .faceBio()
+      .ocr()
       .ktpSessions()
+      .retrieve("session-id");
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
+
+### NPWP Sessions
+
+For NPWP sessions, you'll use the `BasicSessionsParam` class.
+
+#### Create Session
+
+You can create a NPWP session as follows:
+
+```java
+String response = "";
+
+try {
+   BasicSessionsParam param = new BasicSessionsParam("https://docs.glair.ai?success=true");
+
+   response = vision
+      .ocr()
+      .npwpSessions()
+      .create(param);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
+
+#### Retrieve Session
+
+To retrieve a NPWP session, you can use the following code:
+
+```java
+String response = "";
+
+try {
+   response = vision
+      .ocr()
+      .npwpSessions()
       .retrieve("session-id");
 } catch (Exception e) {
    response = e.getMessage();
@@ -425,17 +568,18 @@ System.out.println("Response: " + response);
 
 ### Passive Liveness Sessions
 
-Create session
+For Passive Liveness sessions, you'll use the `BasicSessionsParam` class.
+
+#### Create Session
+
+You can create a Passive Liveness session as follows:
 
 ```java
 String response = "";
 
 try {
-   PassiveLivenessSessions.CreateParam param =
-      new PassiveLivenessSessions.CreateParam.Builder()
-         .successUrl("https://docs.glair.ai?success=true")
-         .cancelUrl("https://docs.glair.ai?success=false")
-         .build();
+   BasicSessionsParam param = new BasicSessionsParam("https://docs.glair.ai?success=true");
+
    response = vision
       .faceBio()
       .passiveLivenessSessions()
@@ -447,7 +591,9 @@ try {
 System.out.println("Response: " + response);
 ```
 
-Retrieve Session
+#### Retrieve Session
+
+To retrieve a NPWP session, you can use the following code:
 
 ```java
 String response = "";
@@ -466,18 +612,18 @@ System.out.println("Response: " + response);
 
 ### Active Liveness Sessions
 
-Create session
+For Active Liveness sessions, you'll use the `ActiveLivenessSessionsParam` class, which is a class that inherits from `BasicSessionsParam`.
+
+#### Create Session with Default Number of Gestures
+
+You can create a Active Liveness session with default number of gestures as follows:
 
 ```java
 String response = "";
 
 try {
-   ActiveLivenessSessions.CreateParam param =
-      new ActiveLivenessSessions.CreateParam.Builder()
-         .successUrl("https://docs.glair.ai?success=true")
-         .cancelUrl("https://docs.glair.ai?success=false")
-         .numberOfGestures(2)
-         .build();
+   ActiveLivenessSessionsParam param = new ActiveLivenessSessionsParam("https://docs.glair.ai?success=true");
+
    response = vision
       .faceBio()
       .activeLivenessSessions()
@@ -489,7 +635,31 @@ try {
 System.out.println("Response: " + response);
 ```
 
-Retrieve Session
+#### Create Session with Custom Number of Gestures
+
+You can create a Active Liveness session with custom number of gestures as follows:
+
+```java
+String response = "";
+
+try {
+   ActiveLivenessSessionsParam param = new ActiveLivenessSessionsParam("https://docs.glair.ai?success=true");
+   param.setNumberOfGestures(2);
+
+   response = vision
+      .faceBio()
+      .activeLivenessSessions()
+      .create(param);
+} catch (Exception e) {
+   response = e.getMessage();
+}
+
+System.out.println("Response: " + response);
+```
+
+#### Retrieve Session
+
+To retrieve a Active Liveness session, you can use the following code:
 
 ```java
 String response = "";
@@ -514,12 +684,13 @@ System.out.println("Response: " + response);
 String response = "";
 
 try {
-   Identity.VerificationParam param =
-      new Identity.VerificationParam.Builder()
+   IdentityVerificationParam param =
+      new IdentityVerificationParam.Builder()
          .nik("1234567890123456")
          .name("John Doe")
          .dateOfBirth("01-01-2000")
          .build();
+
    response = vision
        .identity()
        .verification(param);
@@ -536,13 +707,14 @@ System.out.println("Response: " + response);
 String response = "";
 
 try {
-   Identity.FaceVerificationParam param =
-      new Identity.FaceVerificationParam.Builder()
+   IdentityFaceVerificationParam param =
+      new IdentityFaceVerificationParam.Builder()
          .nik("1234567890123456")
          .name("John Doe")
          .dateOfBirth("01-01-2000")
          .faceImage("path/to/image.jpg")
          .build();
+
    response = vision
        .identity()
        .faceVerification(param);

@@ -1,21 +1,24 @@
 package glair.vision;
 
+import glair.vision.Vision;
+import glair.vision.model.VisionSettings;
+
 public class App {
   public static void main(String[] args) {
-    Settings settings = new Settings.Builder()
+    VisionSettings visionSettings = new VisionSettings.Builder()
         .username("username")
         .password("password")
         .apiKey("apiKey")
         .build();
-    Vision vision = new Vision(settings);
+
+    Vision vision = new Vision(visionSettings);
 
     String response = "";
 
     try {
-      Ocr.KtpParam param = new Ocr.KtpParam("/path/to/image.jpg");
       response = vision
           .ocr()
-          .ktp(param);
+          .ktp("/path/to/image.jpg");
     } catch (Exception e) {
       response = e.getMessage();
     }
