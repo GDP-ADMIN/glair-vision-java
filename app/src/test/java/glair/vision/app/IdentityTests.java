@@ -1,6 +1,7 @@
-package glair.vision;
+package glair.vision.app;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import glair.vision.Vision;
 import glair.vision.api.Identity;
 import glair.vision.logger.LoggerConfig;
 import glair.vision.model.VisionSettings;
@@ -64,11 +65,11 @@ public class IdentityTests {
 
     IdentityFaceVerificationParam invalidFileParam =
         new IdentityFaceVerificationParam.Builder()
-        .nik(basicData[0])
-        .name(basicData[1])
-        .dateOfBirth(basicData[2])
-        .faceImagePath(faceImagePath + "abc")
-        .build();
+            .nik(basicData[0])
+            .name(basicData[1])
+            .dateOfBirth(basicData[2])
+            .faceImagePath(faceImagePath + "abc")
+            .build();
 
     TestsCommon.testFileNotFoundScenario(getFunction("faceVerification"),
         invalidFileParam);
@@ -87,7 +88,7 @@ public class IdentityTests {
   }
 
   private void testWithScenarios(String methodName, Object param,
-                                         Consumer<JsonNode> assertFieldsMethod) {
+                                 Consumer<JsonNode> assertFieldsMethod) {
     BiFunction<Object, VisionSettings, String> function = getFunction(methodName);
 
     TestsCommon.testSuccessScenario(function,

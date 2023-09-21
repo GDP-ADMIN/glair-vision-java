@@ -1,6 +1,7 @@
-package glair.vision;
+package glair.vision.app;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import glair.vision.Vision;
 import glair.vision.api.Ocr;
 import glair.vision.logger.LoggerConfig;
 import glair.vision.model.VisionSettings;

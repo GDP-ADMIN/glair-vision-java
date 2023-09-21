@@ -164,9 +164,9 @@ By adjusting these options, you can fine-tune the logging behavior of the GLAIR 
 ## FAQ
 
 1. IntelliJ IDE can't find the module?
-   - This issue may occur when the library is installed using a JAR file.
-   - Please ensure that you have added the dependency to your `build.gradle` file.
-   - To import the library into the IDE, follow these steps: File > Project Structure > Modules > Dependencies > Add the JAR > OK.
+    - This issue may occur when the library is installed using a JAR file.
+    - Please ensure that you have added the dependency to your `build.gradle` file.
+    - To import the library into the IDE, follow these steps: File > Project Structure > Modules > Dependencies > Add the JAR > OK.
 
 ---
 

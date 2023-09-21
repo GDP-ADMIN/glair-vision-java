@@ -13,4 +13,4 @@ plugins {
 }
 
 rootProject.name = 'glair-vision'
-include('lib')
+include('app', 'vision')
