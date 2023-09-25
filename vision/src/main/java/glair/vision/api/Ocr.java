@@ -4,6 +4,7 @@ import glair.vision.api.sessions.NpwpSessions;
 import glair.vision.model.Request;
 import glair.vision.model.VisionSettings;
 import glair.vision.model.param.BpkbParam;
+import glair.vision.model.param.KtpParam;
 import glair.vision.util.Json;
 import glair.vision.util.Util;
 import glair.vision.api.sessions.KtpSessions;
@@ -53,52 +54,33 @@ public class Ocr {
   /**
    * Perform OCR on a KTP image using default configuration settings.
    *
-   * @param imagePath The path to the KTP image file.
+   * @param param The OCR parameters, including the path to the KTP image file
+   *              and an optional qualities detector setting.
    * @return The OCR result for the KTP image.
    * @throws Exception If an error occurs during the OCR process.
    */
-  public String ktp(String imagePath) throws Exception {
-    return ktp(imagePath, null);
+  public String ktp(KtpParam param) throws Exception {
+    return ktp(param, null);
   }
 
   /**
-   * Perform OCR on a KTP image using custom configuration
-   * settings.
+   * Perform OCR on a KTP image using custom configuration settings.
    *
-   * @param imagePath         The path to the KTP image file.
-   * @param newVisionSettings The custom vision settings to use.
+   * @param param The OCR parameters, including the path to the KTP image file
+   *              and an optional qualities detector setting.
    * @return The OCR result for the KTP image.
    * @throws Exception If an error occurs during the OCR process.
    */
-  public String ktp(String imagePath, VisionSettings newVisionSettings) throws Exception {
-    logSingle("KTP", imagePath);
-    return fetchOcrSingle(imagePath, newVisionSettings, "ktp");
-  }
+  public String ktp(KtpParam param, VisionSettings newVisionSettings) throws Exception {
+    log("KTP", param);
+    Util.checkFileExist(param.getImagePath());
 
-  /**
-   * Perform OCR on a KTP image with additional quality checking
-   * using custom configuration settings.
-   *
-   * @param imagePath The path to the KTP image file.
-   * @return The OCR result for the KTP image.
-   * @throws Exception If an error occurs during the OCR process.
-   */
-  public String ktpQualities(String imagePath) throws Exception {
-    return ktpQualities(imagePath, null);
-  }
+    MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
+    Util.addFileToFormData(bodyBuilder, "image", param.getImagePath());
 
-  /**
-   * Perform OCR on a KTP image with additional quality checking
-   * using custom configuration settings.
-   *
-   * @param imagePath         The path to the KTP image file.
-   * @param newVisionSettings The custom vision settings to use.
-   * @return The OCR result for the KTP image.
-   * @throws Exception If an error occurs during the OCR process.
-   */
-  public String ktpQualities(String imagePath, VisionSettings newVisionSettings) throws Exception {
-    logSingle("KTP Qualities", imagePath);
-    return fetchOcrSingle(imagePath, newVisionSettings, "ktp/qualities");
+    String endpoint = param.getQualitiesDetector() ? "ktp/qualities" : "ktp";
+
+    return fetchOcr(bodyBuilder, newVisionSettings, endpoint);
   }
 
   /**

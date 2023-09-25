@@ -6,9 +6,9 @@ import java.util.HashMap;
 
 /**
  * Represents the parameters for a KTP (Kartu Tanda Penduduk) session.
- * This class extends the {@link BasicSessionsParam} class to include additional options.
+ * This class extends the {@link BaseSessionsParam} class to include additional options.
  */
-public class KtpSessionsParam extends BasicSessionsParam {
+public class KtpSessionsParam extends BaseSessionsParam {
   private boolean qualitiesDetector = false;
 
   /**

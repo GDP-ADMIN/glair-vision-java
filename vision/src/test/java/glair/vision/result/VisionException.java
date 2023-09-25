@@ -1,4 +1,4 @@
-package glair.vision.app.result;
+package glair.vision.result;
 
 import glair.vision.util.Util;
 

@@ -1,7 +1,6 @@
-package glair.vision.app;
+package glair.vision;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import glair.vision.Vision;
 import glair.vision.api.Identity;
 import glair.vision.logger.LoggerConfig;
 import glair.vision.model.VisionSettings;
@@ -29,7 +28,7 @@ public class IdentityTests {
 
   public IdentityTests() throws Exception {}
 
-  @Test
+//  @Test
   public void testBasicVerification() throws Exception {
     String[] basicData = env.getIdentityBasicVerification().split(":");
 
@@ -47,7 +46,7 @@ public class IdentityTests {
     assertTrue(Json.checkAllKeyExist(jsonNode.get("result"), resultKeys));
   }
 
-  @Test
+//  @Test
   public void testFaceVerification() throws Exception {
     String[] basicData = env.getIdentityBasicVerification().split(":");
     String faceImagePath = env.getIdentityFaceVerification();

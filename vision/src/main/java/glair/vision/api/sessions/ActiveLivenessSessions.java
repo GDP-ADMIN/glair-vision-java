@@ -1,16 +1,16 @@
 package glair.vision.api.sessions;
 
 import glair.vision.api.Config;
-import glair.vision.model.SessionsBase;
+import glair.vision.model.BaseSessions;
 import glair.vision.model.param.sessions.ActiveLivenessSessionsParam;
 
 import java.util.HashMap;
 
 /**
  * Represents a session for Active Liveness operations.
- * Extends the {@link SessionsBase} class with specific configuration and session details for Active Liveness sessions.
+ * Extends the {@link BaseSessions} class with specific configuration and session details for Active Liveness sessions.
  */
-public class ActiveLivenessSessions extends SessionsBase<ActiveLivenessSessionsParam> {
+public class ActiveLivenessSessions extends BaseSessions<ActiveLivenessSessionsParam> {
   /**
    * Constructs an ActiveLivenessSessions instance with the provided configuration.
    *

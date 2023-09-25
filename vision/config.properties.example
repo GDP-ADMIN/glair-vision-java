@@ -1,0 +1,17 @@
+username=username_value
+password=password_value
+apiKey=api_key_value
+
+ktp=image_path
+npwp=image_path
+kk=image_path
+stnk=image_path
+bpkb=image_path
+passport=image_path
+licensePlate=image_path
+generalDocument=image_path
+invoice=image_path
+receipt=image_path
+
+identityBasicVerification=nik:name:dob
+identityFaceVerification=image_path

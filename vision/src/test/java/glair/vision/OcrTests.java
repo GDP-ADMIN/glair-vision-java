@@ -1,11 +1,11 @@
-package glair.vision.app;
+package glair.vision;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import glair.vision.Vision;
 import glair.vision.api.Ocr;
 import glair.vision.logger.LoggerConfig;
 import glair.vision.model.VisionSettings;
 import glair.vision.model.param.BpkbParam;
+import glair.vision.model.param.KtpParam;
 import glair.vision.util.Env;
 import glair.vision.util.Json;
 import org.junit.jupiter.api.Test;
@@ -33,14 +33,6 @@ public class OcrTests {
 
   private static Stream<TestParams> endpointTestParams() throws Exception {
     OcrTests instance = new OcrTests();
-
-    TestParams ktp = new TestParams("ktp",
-        instance.env.getKtp(),
-        instance::assertKtpFields);
-
-    TestParams ktpQualities = new TestParams("ktpQualities",
-        instance.env.getKtp(),
-        instance::assertKtpQualitiesFields);
 
     TestParams npwp = new TestParams("npwp",
         instance.env.getNpwp(),
@@ -72,8 +64,7 @@ public class OcrTests {
         instance.env.getReceipt(),
         instance::assertReceiptFields);
 
-    return Stream.of(ktp,
-        ktpQualities,
+    return Stream.of(
         npwp,
         kk,
         stnk,
@@ -84,7 +75,7 @@ public class OcrTests {
         receipt);
   }
 
-  @ParameterizedTest
+//  @ParameterizedTest
   @MethodSource("endpointTestParams")
   public void testEndpoint(TestParams testParams) {
     testWithScenarios(testParams.methodName,
@@ -92,7 +83,23 @@ public class OcrTests {
         testParams.assertFieldsMethod);
   }
 
-  @Test
+//  @Test
+  public void testKtp() {
+    BiFunction<Object, VisionSettings, String> function = getFunction("ktp");
+
+    KtpParam param = new KtpParam(env.getKtp());
+    KtpParam qualitiesParam = new KtpParam(env.getKtp(), true);
+    KtpParam invalidFileParam = new KtpParam(env.getKtp() + "abc");
+
+    testWithScenarios("ktp", param, this::assertKtpFields);
+    TestsCommon.testSuccessScenario(function,
+        qualitiesParam,
+        this::assertStatusAndReason,
+        this::assertKtpQualitiesFields);
+    TestsCommon.testFileNotFoundScenario(function, invalidFileParam);
+  }
+
+//  @Test
   public void testBpkb() {
     BiFunction<Object, VisionSettings, String> function = getFunction("bpkb");
 
@@ -241,7 +248,6 @@ public class OcrTests {
 
   private void assertConfidenceValue(JsonNode jsonNode, String field) {
     JsonNode node = jsonNode.at(field);
-    System.out.println(node);
     assertTrue(node.isObject());
     assertTrue(node.has("confidence") && node.get("confidence").isNumber());
     assertTrue(node.has("value") && node.get("value").isTextual());

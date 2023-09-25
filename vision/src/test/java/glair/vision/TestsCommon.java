@@ -1,10 +1,10 @@
-package glair.vision.app;
+package glair.vision;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import glair.vision.model.VisionSettings;
-import glair.vision.app.result.VisionException;
+import glair.vision.result.VisionException;
 import glair.vision.util.Util;
 
 import java.util.function.BiFunction;

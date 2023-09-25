@@ -2,14 +2,14 @@ package glair.vision.model;
 
 import glair.vision.api.Config;
 import glair.vision.logger.Logger;
-import glair.vision.model.param.sessions.BasicSessionsParam;
+import glair.vision.model.param.sessions.BaseSessionsParam;
 import glair.vision.util.Json;
 import glair.vision.util.Util;
 import org.apache.http.HttpEntity;
 
 import java.util.HashMap;
 
-public class SessionsBase<T extends BasicSessionsParam> {
+public class BaseSessions<T extends BaseSessionsParam> {
   protected static final Logger logger = Logger.getInstance();
   protected final Config config;
   protected final String sessionType;
@@ -24,7 +24,7 @@ public class SessionsBase<T extends BasicSessionsParam> {
    * @param baseUrl     The base URL for the session operations, e.g.,
    *                    "ocr/:version/ktp-sessions"
    */
-  protected SessionsBase(Config config, String sessionType, String baseUrl) {
+  protected BaseSessions(Config config, String sessionType, String baseUrl) {
     this.config = config;
     this.sessionType = sessionType;
     this.baseUrl = baseUrl;

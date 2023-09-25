@@ -8,7 +8,7 @@ import java.util.HashMap;
  * Represents the basic parameters for a session.
  * This class includes success and cancel URLs that can be set for the session.
  */
-public class BasicSessionsParam {
+public class BaseSessionsParam {
   private final String successUrl;
   private String cancelUrl;
 
@@ -17,7 +17,7 @@ public class BasicSessionsParam {
    *
    * @param successUrl The URL to redirect to upon successful session completion.
    */
-  public BasicSessionsParam(String successUrl) {
+  public BaseSessionsParam(String successUrl) {
     this.successUrl = successUrl;
   }
 
@@ -53,7 +53,6 @@ public class BasicSessionsParam {
    *
    * @return A JSON string representing the session parameters.
    */
-
   @Override
   public String toString() {
     HashMap<String, String> map = new HashMap<>();

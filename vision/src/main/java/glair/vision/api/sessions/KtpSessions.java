@@ -1,16 +1,16 @@
 package glair.vision.api.sessions;
 
 import glair.vision.api.Config;
-import glair.vision.model.SessionsBase;
+import glair.vision.model.BaseSessions;
 import glair.vision.model.param.sessions.KtpSessionsParam;
 
 import java.util.HashMap;
 
 /**
  * Represents a session for KTP (Kartu Tanda Penduduk) operations.
- * Extends the {@link SessionsBase} class with specific configuration and session details for KTP sessions.
+ * Extends the {@link BaseSessions} class with specific configuration and session details for KTP sessions.
  */
-public class KtpSessions extends SessionsBase<KtpSessionsParam> {
+public class KtpSessions extends BaseSessions<KtpSessionsParam> {
   /**
    * Constructs a KtpSessions instance with the provided configuration.
    *
