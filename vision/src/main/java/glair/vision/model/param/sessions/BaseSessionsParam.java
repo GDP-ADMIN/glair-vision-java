@@ -33,7 +33,8 @@ public class BaseSessionsParam {
   /**
    * Gets the cancel URL for the session.
    *
-   * @return The cancel URL. If set, GLAIR will show a back button on the prebuilt-UI, and your user will be directed to this URL when the button is clicked.
+   * @return The cancel URL. If set, GLAIR will show a back button on the prebuilt-UI,
+   * and your user will be directed to this URL when the button is clicked.
    */
   public String getCancelUrl() {
     return cancelUrl;
@@ -42,7 +43,9 @@ public class BaseSessionsParam {
   /**
    * Sets the cancel URL for the session.
    *
-   * @param cancelUrl The URL to redirect to if the session is canceled. If set, GLAIR will show a back button on the prebuilt-UI, and your user will be directed to this URL when the button is clicked.
+   * @param cancelUrl The URL to redirect to if the session is canceled. If set, GLAIR
+   *                  will show a back button on the prebuilt-UI, and your user will be
+   *                  directed to this URL when the button is clicked.
    */
   public void setCancelUrl(String cancelUrl) {
     this.cancelUrl = cancelUrl;

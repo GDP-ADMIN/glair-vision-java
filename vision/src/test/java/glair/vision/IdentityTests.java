@@ -28,7 +28,7 @@ public class IdentityTests {
 
   public IdentityTests() throws Exception {}
 
-//  @Test
+  @Test
   public void testBasicVerification() throws Exception {
     String[] basicData = env.getIdentityBasicVerification().split(":");
 
@@ -46,7 +46,7 @@ public class IdentityTests {
     assertTrue(Json.checkAllKeyExist(jsonNode.get("result"), resultKeys));
   }
 
-//  @Test
+  @Test
   public void testFaceVerification() throws Exception {
     String[] basicData = env.getIdentityBasicVerification().split(":");
     String faceImagePath = env.getIdentityFaceVerification();
@@ -58,17 +58,15 @@ public class IdentityTests {
         .faceImagePath(faceImagePath)
         .build();
 
-    testWithScenarios("faceVerification",
-        param,
-        this::assertFaceVerificationFields);
+    testWithScenarios("faceVerification", param, this::assertFaceVerificationFields);
 
     IdentityFaceVerificationParam invalidFileParam =
         new IdentityFaceVerificationParam.Builder()
-            .nik(basicData[0])
-            .name(basicData[1])
-            .dateOfBirth(basicData[2])
-            .faceImagePath(faceImagePath + "abc")
-            .build();
+        .nik(basicData[0])
+        .name(basicData[1])
+        .dateOfBirth(basicData[2])
+        .faceImagePath(faceImagePath + "abc")
+        .build();
 
     TestsCommon.testFileNotFoundScenario(getFunction("faceVerification"),
         invalidFileParam);

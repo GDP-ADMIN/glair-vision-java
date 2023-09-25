@@ -32,7 +32,8 @@ public class KtpSessionsParam extends BaseSessionsParam {
   /**
    * Sets whether the image should be checked for quality during the KTP session.
    *
-   * @param qualitiesDetector If set to true, the image will be checked for quality. The default value is false.
+   * @param qualitiesDetector If set to true, the image will be checked for quality.
+   *                          The default value is false.
    */
   public void setQualitiesDetector(boolean qualitiesDetector) {
     this.qualitiesDetector = qualitiesDetector;

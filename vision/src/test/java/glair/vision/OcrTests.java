@@ -64,8 +64,7 @@ public class OcrTests {
         instance.env.getReceipt(),
         instance::assertReceiptFields);
 
-    return Stream.of(
-        npwp,
+    return Stream.of(npwp,
         kk,
         stnk,
         passport,
@@ -75,7 +74,7 @@ public class OcrTests {
         receipt);
   }
 
-//  @ParameterizedTest
+  @ParameterizedTest
   @MethodSource("endpointTestParams")
   public void testEndpoint(TestParams testParams) {
     testWithScenarios(testParams.methodName,
@@ -83,7 +82,7 @@ public class OcrTests {
         testParams.assertFieldsMethod);
   }
 
-//  @Test
+  @Test
   public void testKtp() {
     BiFunction<Object, VisionSettings, String> function = getFunction("ktp");
 
@@ -99,7 +98,7 @@ public class OcrTests {
     TestsCommon.testFileNotFoundScenario(function, invalidFileParam);
   }
 
-//  @Test
+  @Test
   public void testBpkb() {
     BiFunction<Object, VisionSettings, String> function = getFunction("bpkb");
 

@@ -4,10 +4,24 @@ package glair.vision.logger;
  * Configuration for the logger.
  */
 public class LoggerConfig {
-  // Constants for default log level and pattern
+  /**
+   * Represents the DEBUG log level. This level is used for fine-grained debugging
+   * information.
+   */
   public static final int DEBUG = 0;
+  /**
+   * Represents the INFO log level. This level is used for general informational messages.
+   */
   public static final int INFO = 1;
+  /**
+   * Represents the WARN log level. This level is used for warning messages, indicating
+   * potential issues.
+   */
   public static final int WARN = 2;
+  /**
+   * Represents the ERROR log level. This level is used for error messages, indicating
+   * significant problems.
+   */
   public static final int ERROR = 3;
 
   private static final int DEFAULT_LOG_LEVEL = INFO;

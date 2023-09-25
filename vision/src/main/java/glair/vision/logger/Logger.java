@@ -7,7 +7,8 @@ import java.util.Date;
 import java.util.HashMap;
 
 /**
- * A simple logger class for logging messages with various log levels and a customizable log pattern.
+ * A simple logger class for logging messages with various log levels and a
+ * customizable log pattern.
  */
 public class Logger {
   private static Logger instance;
@@ -113,21 +114,16 @@ public class Logger {
       return;
     }
 
-    SimpleDateFormat dateFormat = new SimpleDateFormat(
-        "yyyy-MM-dd'T'HH:mm:ss.SSS");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
     String now = dateFormat.format(new Date());
 
     String level = logLevelMapping[logLevel];
 
     StringBuilder messageBuilder = new StringBuilder();
     for (Object arg : args) {
-      messageBuilder
-          .append(stringify(arg))
-          .append(" ");
+      messageBuilder.append(stringify(arg)).append(" ");
     }
-    String message = messageBuilder
-        .toString()
-        .trim();
+    String message = messageBuilder.toString().trim();
 
     String formattedLog = pattern
         .replace("{timestamp}", now)

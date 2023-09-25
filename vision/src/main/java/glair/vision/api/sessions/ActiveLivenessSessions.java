@@ -8,7 +8,8 @@ import java.util.HashMap;
 
 /**
  * Represents a session for Active Liveness operations.
- * Extends the {@link BaseSessions} class with specific configuration and session details for Active Liveness sessions.
+ * Extends the {@link BaseSessions} class with specific configuration and session
+ * details for Active Liveness sessions.
  */
 public class ActiveLivenessSessions extends BaseSessions<ActiveLivenessSessionsParam> {
   /**

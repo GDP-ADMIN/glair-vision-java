@@ -66,8 +66,9 @@ public class Ocr {
   /**
    * Perform OCR on a KTP image using custom configuration settings.
    *
-   * @param param The OCR parameters, including the path to the KTP image file
-   *              and an optional qualities detector setting.
+   * @param param             The OCR parameters, including the path to the KTP image file
+   *                          and an optional qualities detector setting.
+   * @param newVisionSettings The custom vision settings to use.
    * @return The OCR result for the KTP image.
    * @throws Exception If an error occurs during the OCR process.
    */

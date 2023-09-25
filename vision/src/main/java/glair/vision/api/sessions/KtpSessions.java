@@ -8,7 +8,8 @@ import java.util.HashMap;
 
 /**
  * Represents a session for KTP (Kartu Tanda Penduduk) operations.
- * Extends the {@link BaseSessions} class with specific configuration and session details for KTP sessions.
+ * Extends the {@link BaseSessions} class with specific configuration and session
+ * details for KTP sessions.
  */
 public class KtpSessions extends BaseSessions<KtpSessionsParam> {
   /**

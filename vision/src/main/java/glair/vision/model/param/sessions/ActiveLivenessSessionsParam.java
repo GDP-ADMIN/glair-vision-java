@@ -6,7 +6,8 @@ import java.util.HashMap;
 
 /**
  * Represents the parameters for an Active Liveness session.
- * This class extends the {@link BaseSessionsParam} class to include the number of gestures.
+ * This class extends the {@link BaseSessionsParam} class to include the number of
+ * gestures.
  */
 public class ActiveLivenessSessionsParam extends BaseSessionsParam {
   private int numberOfGestures = 1;
@@ -32,7 +33,8 @@ public class ActiveLivenessSessionsParam extends BaseSessionsParam {
   /**
    * Sets the number of gestures for the Active Liveness session.
    *
-   * @param numberOfGestures The number of gestures to set. If not set, the default will be 1.
+   * @param numberOfGestures The number of gestures to set. If not set, the default
+   *                         will be 1.
    */
   public void setNumberOfGestures(int numberOfGestures) {
     this.numberOfGestures = numberOfGestures;

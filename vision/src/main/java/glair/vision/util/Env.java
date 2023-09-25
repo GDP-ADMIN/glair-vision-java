@@ -174,10 +174,20 @@ public class Env {
     return getProperty("receipt");
   }
 
+  /**
+   * Retrieves the Identity verification data from the configuration properties.
+   *
+   * @return The Identity verification data.
+   */
   public String getIdentityBasicVerification() {
     return getProperty("identityBasicVerification");
   }
 
+  /**
+   * Retrieves the Identity face image path from the configuration properties.
+   *
+   * @return The Identity face image path.
+   */
   public String getIdentityFaceVerification() {
     return getProperty("identityFaceVerification");
   }
