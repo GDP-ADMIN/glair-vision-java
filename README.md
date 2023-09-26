@@ -179,9 +179,10 @@ String imagePath = "/path/to/image.jpg";
 String response = "";
 
 try {
+   KtpParam param = new KtpParam("path/to/image.jpg");
    response = vision
       .ocr()
-      .ktp(imagePath);
+      .ktp(param);
 } catch (Exception e) {
    response = e.getMessage();
 }
@@ -196,9 +197,10 @@ String imagePath = "/path/to/image.jpg";
 String response = "";
 
 try {
+   KtpParam param = new KtpParam("path/to/image.jpg", true);
    response = vision
       .ocr()
-      .ktpQualities(imagePath);
+      .ktp(param);
 } catch (Exception e) {
    response = e.getMessage();
 }
@@ -444,10 +446,10 @@ System.out.println("Response: " + response);
 
 ## Session
 
-When creating a session using the GLAIR Vision SDK, you'll need to use the `BasicSessionsParam` class as a parameter. `BasicSessionsParam` requires the `successUrl` to be provided in the constructor, and you can optionally set the `cancelUrl` using the `setCancelUrl` method.
+When creating a session using the GLAIR Vision SDK, you'll need to use the `BaseSessionsParam` class as a parameter. `BaseSessionsParam` requires the `successUrl` to be provided in the constructor, and you can optionally set the `cancelUrl` using the `setCancelUrl` method.
 
 ```java
-BasicSessionsParam param = new BasicSessionsParam("https://docs.glair.ai?success=true");
+BaseSessionsParam param = new BaseSessionsParam("https://docs.glair.ai?success=true");
 param.setCancelUrl("https://docs.glair.ai?success=false");
 
 response = vision
@@ -458,7 +460,7 @@ response = vision
 
 ### KTP Sessions
 
-For KTP sessions, you'll use the `KtpSessionsParam` class, which is a class that inherits from `BasicSessionsParam`.
+For KTP sessions, you'll use the `KtpSessionsParam` class, which is a class that inherits from `BaseSessionsParam`.
 
 #### Create Session without Qualities Detector
 
@@ -524,7 +526,7 @@ System.out.println("Response: " + response);
 
 ### NPWP Sessions
 
-For NPWP sessions, you'll use the `BasicSessionsParam` class.
+For NPWP sessions, you'll use the `BaseSessionsParam` class.
 
 #### Create Session
 
@@ -534,7 +536,7 @@ You can create a NPWP session as follows:
 String response = "";
 
 try {
-   BasicSessionsParam param = new BasicSessionsParam("https://docs.glair.ai?success=true");
+   BaseSessionsParam param = new BaseSessionsParam("https://docs.glair.ai?success=true");
 
    response = vision
       .ocr()
@@ -568,7 +570,7 @@ System.out.println("Response: " + response);
 
 ### Passive Liveness Sessions
 
-For Passive Liveness sessions, you'll use the `BasicSessionsParam` class.
+For Passive Liveness sessions, you'll use the `BaseSessionsParam` class.
 
 #### Create Session
 
@@ -578,7 +580,7 @@ You can create a Passive Liveness session as follows:
 String response = "";
 
 try {
-   BasicSessionsParam param = new BasicSessionsParam("https://docs.glair.ai?success=true");
+   BaseSessionsParam param = new BaseSessionsParam("https://docs.glair.ai?success=true");
 
    response = vision
       .faceBio()
@@ -612,7 +614,7 @@ System.out.println("Response: " + response);
 
 ### Active Liveness Sessions
 
-For Active Liveness sessions, you'll use the `ActiveLivenessSessionsParam` class, which is a class that inherits from `BasicSessionsParam`.
+For Active Liveness sessions, you'll use the `ActiveLivenessSessionsParam` class, which is a class that inherits from `BaseSessionsParam`.
 
 #### Create Session with Default Number of Gestures
 
