@@ -9,7 +9,7 @@ plugins {
 dependencies {
     implementation project(':vision')
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    implementation 'io.github.vincentchuardi:test-publish:0.0.2'
 }
 
 application {

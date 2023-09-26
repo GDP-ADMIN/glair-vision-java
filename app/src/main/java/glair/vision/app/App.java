@@ -5,9 +5,13 @@ import glair.vision.logger.LoggerConfig;
 import glair.vision.model.VisionSettings;
 import glair.vision.model.param.KtpParam;
 import glair.vision.util.Env;
+import testpublish.Library;
 
 public class App {
     public static void main(String[] args) {
+        Library lib = new Library();
+        System.out.println(lib.methodTwo());
+
         try {
             Env env = new Env();
             VisionSettings visionSettings = new VisionSettings.Builder()
