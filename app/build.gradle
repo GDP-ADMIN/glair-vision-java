@@ -8,8 +8,6 @@ plugins {
 
 dependencies {
     implementation project(':vision')
-
-    implementation 'io.github.vincentchuardi:test-publish:0.0.2'
 }
 
 application {
