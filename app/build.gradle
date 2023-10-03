@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    implementation project(':vision')
+    implementation 'io.github.vincentchuardi:glair-vision:0.0.3'
 }
 
 application {
