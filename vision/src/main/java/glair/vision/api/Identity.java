@@ -6,8 +6,8 @@ import glair.vision.model.VisionSettings;
 import glair.vision.model.param.IdentityFaceVerificationParam;
 import glair.vision.model.param.IdentityVerificationParam;
 import glair.vision.util.Util;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 /**
  * The Identity class provides methods for performing Identity Verification operations.
@@ -44,16 +44,17 @@ public class Identity {
    * @return The verification result.
    * @throws Exception If an error occurs during the verification process.
    */
-  public String verification(IdentityVerificationParam param,
-                             VisionSettings newVisionSettings) throws Exception {
+  public String verification(
+      IdentityVerificationParam param, VisionSettings newVisionSettings
+  ) throws Exception {
     log("Basic Verification", param);
 
-    MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
-    bodyBuilder.addTextBody("nik", param.getNik());
-    bodyBuilder.addTextBody("name", param.getName());
-    bodyBuilder.addTextBody("date_of_birth", param.getDateOfBirth());
+    MultipartBody.Builder bodyBuilder = Util.createFormData();
+    Util.addTextToFormData(bodyBuilder, "nik", param.getNik());
+    Util.addTextToFormData(bodyBuilder, "name", param.getName());
+    Util.addTextToFormData(bodyBuilder, "date_of_birth", param.getDateOfBirth());
 
-    return performVerification(bodyBuilder, "verification", newVisionSettings);
+    return fetch(bodyBuilder, newVisionSettings, "verification");
   }
 
   /**
@@ -75,40 +76,43 @@ public class Identity {
    * @return The verification result.
    * @throws Exception If an error occurs during the verification process.
    */
-  public String faceVerification(IdentityFaceVerificationParam param,
-                                 VisionSettings newVisionSettings) throws Exception {
+  public String faceVerification(
+      IdentityFaceVerificationParam param, VisionSettings newVisionSettings
+  ) throws Exception {
     log("Face Verification", param);
     Util.checkFileExist(param.getFaceImagePath());
 
-    MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
-    bodyBuilder.addTextBody("nik", param.getNik());
-    bodyBuilder.addTextBody("name", param.getName());
-    bodyBuilder.addTextBody("date_of_birth", param.getDateOfBirth());
+    MultipartBody.Builder bodyBuilder = Util.createFormData();
+    Util.addTextToFormData(bodyBuilder, "nik", param.getNik());
+    Util.addTextToFormData(bodyBuilder, "name", param.getName());
+    Util.addTextToFormData(bodyBuilder, "date_of_birth", param.getDateOfBirth());
     Util.addFileToFormData(bodyBuilder, "face_image", param.getFaceImagePath());
 
-    return performVerification(bodyBuilder, "face-verification", newVisionSettings);
+    return fetch(bodyBuilder, newVisionSettings, "face-verification");
   }
 
   /**
    * Performs identity verification with the specified parameters.
    *
    * @param bodyBuilder       The builder for constructing the HTTP request body.
-   * @param url               The URL endpoint for the verification.
    * @param newVisionSettings The custom vision settings to use (can be null for
    *                          default settings).
+   * @param endpoint          The URL endpoint for the verification.
    * @return The verification result as a string.
    * @throws Exception If an error occurs during the verification process.
    */
-  private String performVerification(MultipartEntityBuilder bodyBuilder, String url,
-                                     VisionSettings newVisionSettings) throws Exception {
+  private String fetch(
+      MultipartBody.Builder bodyBuilder, VisionSettings newVisionSettings, String endpoint
+  ) throws Exception {
     VisionSettings settingsToUse = (newVisionSettings == null) ?
         this.config.getSettings() : newVisionSettings;
 
+    String url = "identity/:version/" + endpoint;
     String method = "POST";
-    String endpoint = "identity/:version/" + url;
 
-    HttpEntity body = bodyBuilder.build();
-    Request request = new Request.RequestBuilder(endpoint, method).body(body).build();
+    RequestBody body = bodyBuilder.build();
+
+    Request request = new Request.RequestBuilder(url, method).body(body).build();
 
     return Util.visionFetch(this.config.getConfig(settingsToUse), request);
   }

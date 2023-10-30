@@ -6,8 +6,15 @@ plugins {
     id 'glair.vision.java-application-conventions'
 }
 
+repositories {
+    mavenCentral()
+//    mavenLocal()
+}
+
 dependencies {
-    implementation 'io.github.vincentchuardi:glair-vision:0.0.3'
+//    implementation project(':vision')
+//    implementation 'io.github.vincentchuardi:glair-vision:0.0.8'
+    implementation 'ai.glair:glair-vision:0.0.1-beta.1'
 }
 
 application {

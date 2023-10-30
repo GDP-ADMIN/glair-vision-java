@@ -1,53 +1,38 @@
 package glair.vision;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import glair.vision.api.Identity;
-import glair.vision.logger.LoggerConfig;
 import glair.vision.model.VisionSettings;
 import glair.vision.model.param.IdentityFaceVerificationParam;
 import glair.vision.model.param.IdentityVerificationParam;
 import glair.vision.util.Env;
-import glair.vision.util.Json;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IdentityTests {
-  private final Env env = new Env();
-  private final VisionSettings visionSettings = new VisionSettings.Builder()
-      .username(env.getUsername())
-      .password(env.getPassword())
-      .apiKey(env.getApiKey())
-      .build();
-  private final Identity identity = (new Vision(visionSettings,
-      new LoggerConfig(LoggerConfig.DEBUG))).identity();
-
-  public IdentityTests() throws Exception {}
+  private final Env env = TestsCommon.env;
+  private final Identity identity = TestsCommon.vision.identity();
 
   @Test
   public void testBasicVerification() throws Exception {
-    String[] basicData = env.getIdentityBasicVerification().split(":");
+    String[] resultKeys = {"nik", "name", "date_of_birth"};
 
+    String[] basicData = env.getIdentityBasicVerification().split(":");
     IdentityVerificationParam param = new IdentityVerificationParam.Builder()
         .nik(basicData[0])
         .name(basicData[1])
         .dateOfBirth(basicData[2])
         .build();
 
-    testWithScenarios("verification", param, this::assertBasicVerificationFields);
-  }
-
-  private void assertBasicVerificationFields(JsonNode jsonNode) {
-    String[] resultKeys = {"nik", "name", "date_of_birth"};
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("result"), resultKeys));
+    testWithScenarios("verification", param, resultKeys);
   }
 
   @Test
   public void testFaceVerification() throws Exception {
+    String funName = "faceVerification";
+    String[] resultKeys = {"nik", "name", "date_of_birth", "face_image_percentage"};
+
     String[] basicData = env.getIdentityBasicVerification().split(":");
     String faceImagePath = env.getIdentityFaceVerification();
 
@@ -57,9 +42,6 @@ public class IdentityTests {
         .dateOfBirth(basicData[2])
         .faceImagePath(faceImagePath)
         .build();
-
-    testWithScenarios("faceVerification", param, this::assertFaceVerificationFields);
-
     IdentityFaceVerificationParam invalidFileParam =
         new IdentityFaceVerificationParam.Builder()
         .nik(basicData[0])
@@ -68,31 +50,19 @@ public class IdentityTests {
         .faceImagePath(faceImagePath + "abc")
         .build();
 
-    TestsCommon.testFileNotFoundScenario(getFunction("faceVerification"),
-        invalidFileParam);
+    BiFunction<Object, VisionSettings, String> fun = getFunction(funName);
+    testWithScenarios(funName, param, resultKeys);
+    TestsCommon.testFileNotFoundScenario(fun, invalidFileParam);
   }
 
-  private void assertFaceVerificationFields(JsonNode jsonNode) {
-    String[] resultKeys = {"nik", "name", "date_of_birth", "face_image_percentage"};
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("result"), resultKeys));
-  }
+  private void testWithScenarios(
+      String methodName, Object param, String[] resultKeys
+  ) {
+    BiFunction<Object, VisionSettings, String> fun = getFunction(methodName);
+    String[] outerKeys = {"verification_status", "reason"};
 
-  private void assertStatusAndReason(JsonNode jsonNode) {
-    assertTrue(jsonNode.has("verification_status") && jsonNode
-        .get("verification_status")
-        .isBoolean());
-    assertTrue(jsonNode.has("reason") && jsonNode.get("reason").isTextual());
-  }
-
-  private void testWithScenarios(String methodName, Object param,
-                                 Consumer<JsonNode> assertFieldsMethod) {
-    BiFunction<Object, VisionSettings, String> function = getFunction(methodName);
-
-    TestsCommon.testSuccessScenario(function,
-        param,
-        this::assertStatusAndReason,
-        assertFieldsMethod);
-    TestsCommon.testInvalidCredentialScenario(function, param);
+    TestsCommon.testSuccessScenario(fun, param, outerKeys, "/result", resultKeys);
+    TestsCommon.testInvalidCredentialScenario(fun, param);
   }
 
   private BiFunction<Object, VisionSettings, String> getFunction(String methodName) {

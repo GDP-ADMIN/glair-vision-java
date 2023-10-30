@@ -11,10 +11,6 @@ import java.util.Properties;
  */
 public class Env {
   /**
-   * The path to the configuration properties file.
-   */
-  private final String filePath = "config.properties";
-  /**
    * A `Properties` object to store the loaded properties.
    */
   private final Properties properties = new Properties();
@@ -26,23 +22,24 @@ public class Env {
    * @throws Exception If an error occurs while loading the properties file.
    */
   public Env() throws Exception {
-    try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
-      properties.load(fileInputStream);
-    }
+    this("config.properties", false);
   }
 
   /**
    * Constructs an `Env` instance with the option to print the absolute path of the
    * properties file.
    *
+   * @param propertiesPath Set the file path of the properties file.
    * @param debug Set to `true` to print the absolute path of the properties file.
    * @throws Exception If an error occurs while loading the properties file.
    */
-  public Env(boolean debug) throws Exception {
-    this();
+  public Env(String propertiesPath, boolean debug) throws Exception {
+    try (FileInputStream fileInputStream = new FileInputStream(propertiesPath)) {
+      properties.load(fileInputStream);
+    }
 
     if (debug) {
-      File file = new File(filePath);
+      File file = new File(propertiesPath);
       System.out.println(file.getAbsolutePath());
     }
   }
@@ -190,5 +187,14 @@ public class Env {
    */
   public String getIdentityFaceVerification() {
     return getProperty("identityFaceVerification");
+  }
+
+  /**
+   * Retrieves the Face image path from the configuration properties.
+   *
+   * @return The Face image path.
+   */
+  public String getFace() {
+    return getProperty("face");
   }
 }

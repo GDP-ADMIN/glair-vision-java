@@ -15,3 +15,5 @@ receipt=image_path
 
 identityBasicVerification=nik:name:dob
 identityFaceVerification=image_path
+
+face=image_path

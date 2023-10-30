@@ -45,7 +45,6 @@ public class ActiveLivenessSessionsParam extends BaseSessionsParam {
    *
    * @return A JSON string representing the session parameters.
    */
-
   @Override
   public String toString() {
     HashMap<String, String> map = new HashMap<>();

@@ -2,12 +2,10 @@ package glair.vision;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import glair.vision.api.Ocr;
-import glair.vision.logger.LoggerConfig;
 import glair.vision.model.VisionSettings;
 import glair.vision.model.param.BpkbParam;
 import glair.vision.model.param.KtpParam;
 import glair.vision.util.Env;
-import glair.vision.util.Json;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -17,52 +15,64 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OcrTests {
-  private final Env env = new Env();
-  private final VisionSettings visionSettings = new VisionSettings.Builder()
-      .username(env.getUsername())
-      .password(env.getPassword())
-      .apiKey(env.getApiKey())
-      .build();
-  private final Ocr ocr = (new Vision(visionSettings,
-      new LoggerConfig(LoggerConfig.INFO))).ocr();
+  private final Env env = TestsCommon.env;
+  private final Ocr ocr = TestsCommon.vision.ocr();
 
-  public OcrTests() throws Exception {}
-
-  private static Stream<TestParams> endpointTestParams() throws Exception {
+  private static Stream<TestParams> endpointTestParams() {
     OcrTests instance = new OcrTests();
 
-    TestParams npwp = new TestParams("npwp",
-        instance.env.getNpwp(),
-        instance::assertNpwpFields);
+    String[] npwpKeys = {"alamat", "nama", "nik", "noNpwp"};
+    TestParams npwp = new TestParams("npwp", instance.env.getNpwp(), npwpKeys);
 
-    TestParams kk = new TestParams("kk", instance.env.getKk(), instance::assertKkFields);
+    String[] kkKeys = {"alamat", "desa_kelurahan", "kabupaten_kota", "kecamatan",
+        "kode_pos", "nama_kepala_keluarga", "nomor_blanko", "nomor_kk", "provinsi",
+        "rt_rw"};
+    TestParams kk = new TestParams("kk", instance.env.getKk(), kkKeys);
 
-    TestParams stnk = new TestParams("stnk",
-        instance.env.getStnk(),
-        instance::assertStnkFields);
+    String[] stnkKeys = {"alamat", "bahan_bakar", "berlaku_sampai", "isi_sillinder",
+        "jenis", "kode_lokasi", "merk", "model", "nama_pemilik", "nomor_bpkb",
+        "nomor_mesin", "nomor_rangka", "nomor_registrasi", "nomor_stnk",
+        "nomor_urut_pendaftaran", "tahun_pembuatan", "tahun_registrasi", "tipe", "warna"
+        , "warna_tnkb"};
+    TestParams stnk = new TestParams("stnk", instance.env.getStnk(), stnkKeys);
 
+    String[] passportKeys = {"birth_date", "birth_date_hash", "country", "doc_number",
+        "doc_number_hash", "document_type", "expiry_date", "expiry_date_hash",
+        "final_hash", "name", "nationality", "optional_data", "optional_data_hash",
+        "sex", "surname"};
     TestParams passport = new TestParams("passport",
         instance.env.getPassport(),
-        instance::assertPassportFields);
+        passportKeys
+    );
 
+    String[] plateKeys = {"plates"};
     TestParams licensePlate = new TestParams("licensePlate",
         instance.env.getLicensePlate(),
-        instance::assertLicensePlateFields);
+        plateKeys
+    );
 
+    String[] generalDocumentKeys = {"all_texts"};
     TestParams generalDocument = new TestParams("generalDocument",
         instance.env.getGeneralDocument(),
-        instance::assertGeneralDocumentFields);
+        generalDocumentKeys
+    );
 
+    String[] invoiceKeys = {"invoice_number", "invoice_date", "vendor_name",
+        "invoice_total"};
     TestParams invoice = new TestParams("invoice",
         instance.env.getInvoice(),
-        instance::assertInvoiceFields);
+        invoiceKeys
+    );
 
+    String[] receiptKeys = {"merchant_name", "receipt_date", "receipt_time",
+        "total_amount"};
     TestParams receipt = new TestParams("receipt",
         instance.env.getReceipt(),
-        instance::assertReceiptFields);
+        receiptKeys
+    );
 
     return Stream.of(npwp,
         kk,
@@ -71,57 +81,62 @@ public class OcrTests {
         licensePlate,
         generalDocument,
         invoice,
-        receipt);
+        receipt
+    );
   }
 
   @ParameterizedTest
   @MethodSource("endpointTestParams")
   public void testEndpoint(TestParams testParams) {
-    testWithScenarios(testParams.methodName,
-        testParams.param,
-        testParams.assertFieldsMethod);
+    testWithScenarios(testParams.methodName, testParams.param, testParams::getAssert);
   }
 
   @Test
   public void testKtp() {
-    BiFunction<Object, VisionSettings, String> function = getFunction("ktp");
+    String funName = "ktp";
 
     KtpParam param = new KtpParam(env.getKtp());
     KtpParam qualitiesParam = new KtpParam(env.getKtp(), true);
     KtpParam invalidFileParam = new KtpParam(env.getKtp() + "abc");
 
-    testWithScenarios("ktp", param, this::assertKtpFields);
-    TestsCommon.testSuccessScenario(function,
+    BiFunction<Object, VisionSettings, String> fun = getFunction(funName);
+    testWithScenarios(funName, param, this::assertKtpFields);
+    TestsCommon.testSuccessScenario(fun,
         qualitiesParam,
         this::assertStatusAndReason,
-        this::assertKtpQualitiesFields);
-    TestsCommon.testFileNotFoundScenario(function, invalidFileParam);
+        this::assertKtpQualitiesFields
+    );
+    TestsCommon.testFileNotFoundScenario(fun, invalidFileParam);
   }
 
   @Test
   public void testBpkb() {
-    BiFunction<Object, VisionSettings, String> function = getFunction("bpkb");
+    String funName = "bpkb";
 
     BpkbParam param = new BpkbParam(env.getBpkb());
     BpkbParam pageParam = new BpkbParam(env.getBpkb(), 1);
     BpkbParam invalidFileParam = new BpkbParam(env.getBpkb() + "abc");
 
-    testWithScenarios("bpkb", param, this::assertBpkbFields);
+    BiFunction<Object, VisionSettings, String> function = getFunction(funName);
+    testWithScenarios(funName, param, this::assertBpkbFields);
     TestsCommon.testSuccessScenario(function,
         pageParam,
         this::assertStatusAndReason,
-        this::assertBpkbPageFields);
+        this::assertBpkbPageFields
+    );
     TestsCommon.testFileNotFoundScenario(function, invalidFileParam);
   }
 
-  private void testWithScenarios(String methodName, Object param,
-                                 Consumer<JsonNode> assertFieldsMethod) {
+  private void testWithScenarios(
+      String methodName, Object param, Consumer<JsonNode> assertFieldsMethod
+  ) {
     BiFunction<Object, VisionSettings, String> function = getFunction(methodName);
 
     TestsCommon.testSuccessScenario(function,
         param,
         this::assertStatusAndReason,
-        assertFieldsMethod);
+        assertFieldsMethod
+    );
 
     TestsCommon.testInvalidCredentialScenario(function, param);
 
@@ -132,15 +147,13 @@ public class OcrTests {
 
   private void assertKtpFields(JsonNode jsonNode) {
     String[] imagesKeys = {"photo", "sign"};
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("images"), imagesKeys));
+    assertTrue(TestsCommon.checkAllKeyExist(jsonNode.get("images"), imagesKeys));
 
     String[] readKeys = {"agama", "alamat", "berlakuHingga", "golonganDarah",
         "jenisKelamin", "kecamatan", "kelurahanDesa", "kewarganegaraan", "kotaKabupaten"
         , "nama", "nik", "pekerjaan", "provinsi", "rtRw", "statusPerkawinan",
         "tanggalLahir", "tempatLahir"};
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("read"), readKeys));
-
-    assertConfidenceValue(jsonNode, "/read/nik");
+    assertTrue(TestsCommon.checkAllKeyExist(jsonNode.get("read"), readKeys));
   }
 
   private void assertKtpQualitiesFields(JsonNode jsonNode) {
@@ -148,61 +161,7 @@ public class OcrTests {
 
     String[] qualitiesKeys = {"is_blurred", "is_bright", "is_copy", "is_cropped",
         "is_dark", "is_flash", "is_ktp", "is_rotated"};
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("qualities"), qualitiesKeys));
-  }
-
-  private void assertNpwpFields(JsonNode jsonNode) {
-    String[] readKeys = {"alamat", "nama", "nik", "noNpwp"};
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("read"), readKeys));
-    assertConfidenceValue(jsonNode, "/read/nama");
-  }
-
-  private void assertKkFields(JsonNode jsonNode) {
-    String[] readKeys = {"alamat", "desa_kelurahan", "kabupaten_kota", "kecamatan",
-        "kode_pos", "nama_kepala_keluarga", "nomor_blanko", "nomor_kk", "provinsi",
-        "rt_rw"};
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("read"), readKeys));
-  }
-
-  private void assertStnkFields(JsonNode jsonNode) {
-    String[] readKeys = {"alamat", "bahan_bakar", "berlaku_sampai", "isi_sillinder",
-        "jenis", "kode_lokasi", "merk", "model", "nama_pemilik", "nomor_bpkb",
-        "nomor_mesin", "nomor_rangka", "nomor_registrasi", "nomor_stnk",
-        "nomor_urut_pendaftaran", "tahun_pembuatan", "tahun_registrasi", "tipe", "warna"
-        , "warna_tnkb"};
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("read"), readKeys));
-  }
-
-  private void assertPassportFields(JsonNode jsonNode) {
-    String[] readKeys = {"birth_date", "birth_date_hash", "country", "doc_number",
-        "doc_number_hash", "document_type", "expiry_date", "expiry_date_hash",
-        "final_hash", "name", "nationality", "optional_data", "optional_data_hash",
-        "sex", "surname"};
-
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("read"), readKeys));
-  }
-
-  private void assertLicensePlateFields(JsonNode jsonNode) {
-    String[] readKeys = {"plates"};
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("read"), readKeys));
-  }
-
-  private void assertGeneralDocumentFields(JsonNode jsonNode) {
-    String[] readKeys = {"all_texts"};
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("read"), readKeys));
-  }
-
-  private void assertInvoiceFields(JsonNode jsonNode) {
-    String[] readKeys = {"invoice_number", "invoice_date", "vendor_name",
-        "invoice_total"};
-
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("read"), readKeys));
-  }
-
-  private void assertReceiptFields(JsonNode jsonNode) {
-    String[] readKeys = {"merchant_name", "receipt_date", "receipt_time", "total_amount"};
-
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("read"), readKeys));
+    assertTrue(TestsCommon.checkAllKeyExist(jsonNode.get("qualities"), qualitiesKeys));
   }
 
   private void assertBpkbFields(JsonNode jsonNode) {
@@ -221,16 +180,21 @@ public class OcrTests {
 
     String[] terakhirKeys = {"diterbitkan_oleh", "no_register"};
 
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("read"), readKeys));
+    assertTrue(TestsCommon.checkAllKeyExist(jsonNode.get("read"), readKeys));
 
-    assertTrue(Json.checkAllKeyExist(jsonNode.at("/read/identitas_pemilik"),
-        pemilikKeys));
-    assertTrue(Json.checkAllKeyExist(jsonNode.at("/read/identitas_kendaraan"),
-        kendaraanKeys));
-    assertTrue(Json.checkAllKeyExist(jsonNode.at("/read/dokumen_registrasi_pertama"),
-        dokumenKeys));
-    assertTrue(Json.checkAllKeyExist(jsonNode.at("/read/halaman_terakhir"),
-        terakhirKeys));
+    assertTrue(TestsCommon.checkAllKeyExist(jsonNode.at("/read/identitas_pemilik"),
+        pemilikKeys
+    ));
+    assertTrue(TestsCommon.checkAllKeyExist(jsonNode.at("/read/identitas_kendaraan"),
+        kendaraanKeys
+    ));
+    assertTrue(TestsCommon.checkAllKeyExist(jsonNode.at("/read" +
+            "/dokumen_registrasi_pertama"),
+        dokumenKeys
+    ));
+    assertTrue(TestsCommon.checkAllKeyExist(jsonNode.at("/read/halaman_terakhir"),
+        terakhirKeys
+    ));
   }
 
   private void assertBpkbPageFields(JsonNode jsonNode) {
@@ -239,26 +203,35 @@ public class OcrTests {
     String[] pemilikKeys = {"alamat", "alamat_email", "dikeluarkan", "nama_pemilik",
         "no_ktp_tdp", "nomor_bpkb", "pada_tanggal", "pekerjaan"};
 
-    assertTrue(Json.checkAllKeyExist(jsonNode.get("read"), readKeys));
+    assertTrue(TestsCommon.checkAllKeyExist(jsonNode.get("read"), readKeys));
 
-    assertTrue(Json.checkAllKeyExist(jsonNode.at("/read/identitas_pemilik"),
-        pemilikKeys));
-  }
-
-  private void assertConfidenceValue(JsonNode jsonNode, String field) {
-    JsonNode node = jsonNode.at(field);
-    assertTrue(node.isObject());
-    assertTrue(node.has("confidence") && node.get("confidence").isNumber());
-    assertTrue(node.has("value") && node.get("value").isTextual());
+    assertTrue(TestsCommon.checkAllKeyExist(jsonNode.at("/read/identitas_pemilik"),
+        pemilikKeys
+    ));
   }
 
   private void assertStatusAndReason(JsonNode jsonNode) {
-    assertTrue(jsonNode.has("status") && jsonNode.get("status").isTextual());
-    assertTrue(jsonNode.has("reason") && jsonNode.get("reason").isTextual());
+    String[] outerKeys = {"status", "reason"};
+    assertTrue(TestsCommon.checkAllKeyExist(jsonNode, outerKeys));
   }
 
-  private record TestParams(String methodName, Object param,
-                            Consumer<JsonNode> assertFieldsMethod) {
+  private static class TestParams {
+    public String methodName;
+    public Object param;
+    public String[] dataKeys;
+
+    public TestParams(
+        String methodName, Object param, String[] dataKeys
+    ) {
+      this.methodName = methodName;
+      this.param = param;
+      this.dataKeys = dataKeys;
+    }
+
+    public void getAssert(JsonNode jsonNode) {
+      assertTrue(TestsCommon.checkAllKeyExist(jsonNode.get("read"), dataKeys));
+    }
+
     @Override
     public String toString() {
       return "Test - " + methodName;

@@ -5,7 +5,8 @@ import glair.vision.logger.Logger;
 import glair.vision.model.param.sessions.BaseSessionsParam;
 import glair.vision.util.Json;
 import glair.vision.util.Util;
-import org.apache.http.HttpEntity;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 
 import java.util.HashMap;
 
@@ -49,6 +50,24 @@ public class BaseSessions<T extends BaseSessionsParam> {
   }
 
   /**
+   * Gets the session type.
+   *
+   * @return The session type.
+   */
+  public String getSessionType() {
+    return sessionType;
+  }
+
+  /**
+   * Gets the Base URL path.
+   *
+   * @return The Base URL path.
+   */
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
+  /**
    * Creates a session with the provided parameters using default configuration settings.
    *
    * @param param The session parameters.
@@ -70,7 +89,11 @@ public class BaseSessions<T extends BaseSessionsParam> {
   public String create(T param, VisionSettings newVisionSettings) throws Exception {
     log("Create", param);
 
-    HttpEntity body = Util.createJsonBody(createBody(param));
+    RequestBody body = RequestBody.create(
+        Json.toJsonString(createBody(param)),
+        MediaType.get("application/json; charset=utf-8")
+    );
+
     Request request = new Request.RequestBuilder(baseUrl, "POST").body(body).build();
 
     return fetch(request, newVisionSettings);

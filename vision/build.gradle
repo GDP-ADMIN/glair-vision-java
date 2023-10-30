@@ -9,9 +9,6 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'signing'
-
-    // ShadowJar
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 repositories {
@@ -19,15 +16,13 @@ repositories {
     mavenCentral()
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
 dependencies {
-    // ShadowJar
-    shadow localGroovy()
-    shadow gradleApi()
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
 
-    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
-    implementation 'org.apache.httpcomponents:httpmime:4.5.14'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
@@ -51,32 +46,32 @@ javadoc {
     }
 }
 
-shadowJar {
-    relocate 'org.apache.httpcomponents:httpclient:4.5.14', 'shadow.org.' +
-            'apache.httpcomponents:httpclient:4.5.14'
-    relocate 'org.apache.httpcomponents:httpmime:4.5.14', 'shadow.org.apache.' +
-            'httpcomponents:httpmime:4.5.14'
-}
+def artifactGroupId = 'ai.glair'
+def artifactName = 'glair-vision'
+def artifactVersion = '0.0.1-beta.1'
+def artifactRepositoryUrl = 'https://github.com/glair-ai/glair-vision-java'
+def artifactRepositoryGit = 'github.com/glair-ai/glair-vision-java.git'
 
 jar {
     manifest {
         attributes 'Multi-Release': 'true'
     }
-    archivesBaseName 'glair-vision'
+    archivesBaseName = artifactName
+    version = artifactVersion
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = 'ai.glair'
-            artifactId = 'glair-vision'
-            version = '0.0.1-beta.1'
+            groupId = artifactGroupId
+            artifactId = artifactName
+            version = artifactVersion
             from components.java
 
             pom {
-                name = 'glair-vision'
+                name = artifactName
                 description = 'GLAIR Vision SDK. Our SDK lets you make server-side HTTP requests from your server to GLAIR Vision API endpoints. It contains boilerplate code so you can get up and running in just a few lines of code..'
-                url = 'https://github.com/glair-ai/glair-vision-java'
+                url = artifactRepositoryUrl
                 inceptionYear = '2023'
 
                 licenses {
@@ -86,18 +81,18 @@ publishing {
                     }
                 }
 
-                developers {
-                    developer {
-                        id = 'vincentchuardi'
-                        name = 'Vincent Chuardi'
-                        email = 'vincent.chuardi@gdplabs.id'
-                    }
-                }
+//                developers {
+//                    developer {
+//                        id = 'vincentchuardi'
+//                        name = 'Vincent Chuardi'
+//                        email = 'vincent.chuardi@gdplabs.id'
+//                    }
+//                }
 
                 scm {
-                    connection = 'scm:git:git:github.com/glair-ai/glair-vision-java.git'
-                    developerConnection = 'scm:git:ssh://github.com/glair-ai/glair-vision-java.git'
-                    url = 'https://github.com/glair-ai/glair-vision-java'
+                    connection = 'scm:git:git:' + artifactRepositoryGit
+                    developerConnection = 'scm:git:ssh://' + artifactRepositoryGit
+                    url = artifactRepositoryUrl
                 }
             }
         }

@@ -17,7 +17,6 @@ public class KtpParam {
    *
    * @param imagePath The path to the KTP image.
    */
-
   public KtpParam(String imagePath) {
     this(imagePath, false);
   }

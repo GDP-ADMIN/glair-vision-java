@@ -1,6 +1,6 @@
 package glair.vision.model;
 
-import org.apache.http.HttpEntity;
+import okhttp3.RequestBody;
 
 /**
  * Represents an HTTP request configuration.
@@ -8,7 +8,7 @@ import org.apache.http.HttpEntity;
 public class Request {
   private final String path;
   private final String method;
-  private final HttpEntity body;
+  private final RequestBody body;
 
   /**
    * Constructs a new HTTP request using the provided builder.
@@ -44,7 +44,7 @@ public class Request {
    *
    * @return The request body as an HttpEntity.
    */
-  public HttpEntity getBody() {
+  public RequestBody getBody() {
     return body;
   }
 
@@ -54,7 +54,7 @@ public class Request {
   public static class RequestBuilder {
     private final String path;
     private final String method;
-    private HttpEntity body;
+    private RequestBody body;
 
     /**
      * Constructs a new request builder with the specified path and HTTP method.
@@ -73,7 +73,7 @@ public class Request {
      * @param body The request body as an HttpEntity.
      * @return The builder instance for method chaining.
      */
-    public RequestBuilder body(HttpEntity body) {
+    public RequestBuilder body(RequestBody body) {
       this.body = body;
       return this;
     }

@@ -1,33 +1,30 @@
 package glair.vision.util;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Base64;
-import java.util.HashMap;
-
 import glair.vision.Vision;
 import glair.vision.api.Config;
 import glair.vision.logger.Logger;
 import glair.vision.model.Request;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.*;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.URLConnection;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Utility class for common operations and HTTP requests.
  */
 public class Util {
   private static final Logger logger = Logger.getInstance();
+  private static final OkHttpClient client = new OkHttpClient.Builder()
+      .connectTimeout(5, TimeUnit.MINUTES)
+      .writeTimeout(5, TimeUnit.MINUTES)
+      .readTimeout(5, TimeUnit.MINUTES)
+      .build();
 
   /**
    * Performs an HTTP request and fetches data from a specified endpoint.
@@ -39,102 +36,93 @@ public class Util {
    *                   status is not OK (200).
    */
   public static String visionFetch(Config config, Request request) throws Exception {
-    String path = request.getPath();
     String method = request.getMethod();
-    HttpEntity body = request.getBody();
-
-    String apiEndpoint = config.getUrl(path);
+    String apiEndpoint = config.getUrl(request.getPath());
 
     logger.debug("URL", Json.toJsonString("url", apiEndpoint));
     logger.debug(config);
 
-    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-      HttpRequestBase httpRequestBase;
+    okhttp3.Request.Builder httpRequestBuilder = new okhttp3.Request.Builder()
+        .header("Authorization", config.getBasicAuth())
+        .header("x-api-key", config.getApiKey())
+        .header("GLAIR-Vision-Java-SDK-Version", Vision.version)
+        .url(apiEndpoint);
 
-      if (method.equalsIgnoreCase("GET")) {
-        httpRequestBase = new HttpGet(apiEndpoint);
-      } else if (method.equalsIgnoreCase("POST")) {
-        HttpPost httpPost = new HttpPost(apiEndpoint);
+    if (method.equalsIgnoreCase("GET")) {
+      httpRequestBuilder.get();
+    } else if (method.equalsIgnoreCase("POST")) {
+      httpRequestBuilder.post(request.getBody());
+    }
 
-        if (body != null) {
-          httpPost.setEntity(body);
-        }
+    okhttp3.Request httpRequest = httpRequestBuilder.build();
 
-        httpRequestBase = httpPost;
+    try (Response response = client.newCall(httpRequest).execute()) {
+      String body = response.body() != null ? response.body().string() : "null";
+      if (response.isSuccessful()) {
+        return body;
       } else {
-        throw new Exception("Wrong Request Method");
-      }
-
-      setCommonHeaders(httpRequestBase, config);
-
-      try (CloseableHttpResponse response = httpClient.execute(httpRequestBase)) {
-        int statusCode = response.getStatusLine().getStatusCode();
-        String responseBody = EntityUtils.toString(response.getEntity(),
-            StandardCharsets.UTF_8);
-
-        if (statusCode == HttpStatus.SC_OK) {
-          return responseBody;
-        } else {
-          throw new Exception(responseBody);
-        }
+        throw new Exception(body);
       }
     }
   }
 
   /**
-   * Sets common HTTP headers for the given HTTP request based on the provided
-   * configuration.
+   * Creates and returns a new instance of {@link MultipartBody.Builder} configured for
+   * forming HTTP multipart requests with form data.
    *
-   * @param httpRequest The HTTP request for which headers need to be set.
-   * @param config      The configuration settings containing headers to be set.
+   * @return A {@link MultipartBody.Builder} configured for form data.
    */
-  private static void setCommonHeaders(HttpRequestBase httpRequest, Config config) {
-    httpRequest.setHeader(HttpHeaders.AUTHORIZATION, config.getBasicAuth());
-    httpRequest.setHeader("x-api-key", config.getApiKey());
-    httpRequest.setHeader("GLAIR-Vision-Java-SDK-Version", Vision.version);
+  public static MultipartBody.Builder createFormData() {
+    return new MultipartBody.Builder().setType(MultipartBody.FORM);
   }
 
   /**
-   * Adds a file to the given form data entity builder.
+   * Adds a file to the specified {@link MultipartBody.Builder} as form data.
    *
-   * @param entityBuilder The entity builder for the form data.
-   * @param name          The name of the file field.
-   * @param filePath      The path to the file.
-   * @throws Exception If there is an issue adding the file to the entity.
+   * @param builder   The {@link MultipartBody.Builder} to which the file should be added.
+   * @param fieldName The name of the form field for the file.
+   * @param filePath  The path to the file to be added.
    */
-  public static void addFileToFormData(MultipartEntityBuilder entityBuilder,
-                                       String name, String filePath) throws Exception {
+  public static void addFileToFormData(
+      MultipartBody.Builder builder, String fieldName, String filePath
+  ) {
     File file = new File(filePath);
-    ContentType contentType = ContentType.create(Files.probeContentType(file.toPath()));
-    entityBuilder.addBinaryBody(name, file, contentType, file.getName());
+    RequestBody filePart = RequestBody.create(file, MediaType.parse(getMimeType(file)));
+
+    builder.addFormDataPart(fieldName, file.getName(), filePart);
   }
 
   /**
-   * Creates a JSON request body from a HashMap.
+   * Adds text data to the specified {@link MultipartBody.Builder} as form data.
    *
-   * @param map The HashMap containing key-value pairs for the JSON.
-   * @return The HTTP entity representing the JSON request body.
+   * @param builder    The {@link MultipartBody.Builder} to which the text data should
+   *                   be added.
+   * @param fieldName  The name of the form field for the text data.
+   * @param fieldValue The value of the text data.
    */
-  public static HttpEntity createJsonBody(HashMap<String, String> map) {
-    String jsonString = Json.toJsonString(map);
-    return new StringEntity(jsonString, ContentType.APPLICATION_JSON);
+  public static void addTextToFormData(
+      MultipartBody.Builder builder, String fieldName, String fieldValue
+  ) {
+    builder.addFormDataPart(fieldName, fieldValue);
+  }
+
+  private static String getMimeType(File file) {
+    return URLConnection.guessContentTypeFromName(file.getName());
   }
 
   /**
-   * Converts a file to a Base64-encoded string.
+   * Converts a file located at the specified path to a Base64-encoded string.
    *
-   * @param filePath The path to the file.
-   * @return The Base64-encoded string.
+   * @param filePath The path to the file to be converted to Base64.
+   * @return A Base64-encoded string representing the content of the file.
+   * @throws Exception If an error occurs during the file conversion process.
    */
-  public static String fileToBase64(String filePath) {
-    try {
-      Path path = Paths.get(filePath);
-      byte[] imageBytes = Files.readAllBytes(path);
-      return Base64.getEncoder().encodeToString(imageBytes);
-    } catch (Exception e) {
-      e.printStackTrace();
-      return null;
-    }
+  public static String fileToBase64(String filePath) throws Exception {
+    File file = new File(filePath);
+    byte[] buffer = new byte[(int) file.length() + 100];
+    @SuppressWarnings("resource") int length = new FileInputStream(file).read(buffer);
+
+    return Base64.encodeToString(buffer, 0, length, Base64.DEFAULT);
   }
 
   /**
@@ -167,10 +155,9 @@ public class Util {
    * @throws Exception If the file does not exist or an error occurs during the check.
    */
   public static void checkFileExist(String filePath) throws Exception {
-    Path path = Paths.get(filePath);
-    boolean fileExists = Files.exists(path);
+    File file = new File(filePath);
 
-    if (!fileExists) {
+    if (!file.exists()) {
       throw new Exception("The file does not exist.");
     }
   }

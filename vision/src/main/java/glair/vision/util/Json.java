@@ -1,7 +1,5 @@
 package glair.vision.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,25 +7,6 @@ import java.util.Map;
  * Utility class for working with JSON data and formatting.
  */
 public class Json {
-  /**
-   * Checks if all specified keys exist in the JSON object.
-   *
-   * @param jsonNode    The JSON object to check.
-   * @param keysToCheck The array of keys to check for existence.
-   * @return True if all keys exist, false otherwise.
-   */
-  public static boolean checkAllKeyExist(JsonNode jsonNode, String[] keysToCheck) {
-    boolean allKeysExist = true;
-    for (String key : keysToCheck) {
-      if (!jsonNode.has(key)) {
-        allKeysExist = false;
-        break;
-      }
-    }
-
-    return allKeysExist;
-  }
-
   /**
    * Formats a single key-value pair as a JSON property.
    *
@@ -82,7 +61,7 @@ public class Json {
    * @return The formatted JSON object as a string.
    */
   public static String toJsonString(HashMap<String, String> map, int indent) {
-    String tab = " ".repeat(indent);
+    String tab = createTab(indent);
     StringBuilder stringBuilder = new StringBuilder("{\n");
 
     for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -97,5 +76,14 @@ public class Json {
 
     stringBuilder.append("}");
     return stringBuilder.toString();
+  }
+
+  private static String createTab(int indent) {
+    StringBuilder indentation = new StringBuilder();
+    for (int i = 0; i < indent; i++) {
+      indentation.append(" ");
+    }
+
+    return indentation.toString();
   }
 }

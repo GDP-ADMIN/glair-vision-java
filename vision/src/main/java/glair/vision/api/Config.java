@@ -2,9 +2,8 @@ package glair.vision.api;
 
 import glair.vision.model.VisionSettings;
 import glair.vision.util.Json;
+import okhttp3.Credentials;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.HashMap;
 
 /**
@@ -67,10 +66,7 @@ public class Config {
    */
   public String getBasicAuth() {
     if (this.basicAuth == null) {
-      String buffer = Base64
-          .getEncoder()
-          .encodeToString((this.username + ":" + this.password).getBytes(StandardCharsets.UTF_8));
-      String auth = "Basic " + buffer;
+      String auth = Credentials.basic(username, password);
       this.basicAuth = auth;
       return auth;
     }

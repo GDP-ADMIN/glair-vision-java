@@ -1,16 +1,16 @@
 package glair.vision.api;
 
+import glair.vision.api.sessions.KtpSessions;
 import glair.vision.api.sessions.NpwpSessions;
+import glair.vision.logger.Logger;
 import glair.vision.model.Request;
 import glair.vision.model.VisionSettings;
 import glair.vision.model.param.BpkbParam;
 import glair.vision.model.param.KtpParam;
 import glair.vision.util.Json;
 import glair.vision.util.Util;
-import glair.vision.api.sessions.KtpSessions;
-import glair.vision.logger.Logger;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 /**
  * The Ocr class provides methods for performing Optical Character Recognition (OCR)
@@ -76,12 +76,12 @@ public class Ocr {
     log("KTP", param);
     Util.checkFileExist(param.getImagePath());
 
-    MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
-    Util.addFileToFormData(bodyBuilder, "image", param.getImagePath());
-
     String endpoint = param.getQualitiesDetector() ? "ktp/qualities" : "ktp";
 
-    return fetchOcr(bodyBuilder, newVisionSettings, endpoint);
+    MultipartBody.Builder bodyBuilder = Util.createFormData();
+    Util.addFileToFormData(bodyBuilder, "image", param.getImagePath());
+
+    return fetch(bodyBuilder, newVisionSettings, endpoint);
   }
 
   /**
@@ -105,9 +105,12 @@ public class Ocr {
    * @return The OCR result for the NPWP image.
    * @throws Exception If an error occurs during the OCR process.
    */
-  public String npwp(String imagePath, VisionSettings newVisionSettings) throws Exception {
+  public String npwp(
+      String imagePath,
+      VisionSettings newVisionSettings
+  ) throws Exception {
     logSingle("NPWP", imagePath);
-    return fetchOcrSingle(imagePath, newVisionSettings, "npwp");
+    return fetchSingle(imagePath, newVisionSettings, "npwp");
   }
 
   /**
@@ -131,7 +134,7 @@ public class Ocr {
    */
   public String kk(String imagePath, VisionSettings newVisionSettings) throws Exception {
     logSingle("KK", imagePath);
-    return fetchOcrSingle(imagePath, newVisionSettings, "kk");
+    return fetchSingle(imagePath, newVisionSettings, "kk");
   }
 
   /**
@@ -153,9 +156,12 @@ public class Ocr {
    * @return The OCR result for the STNK image.
    * @throws Exception If an error occurs during the OCR process.
    */
-  public String stnk(String imagePath, VisionSettings newVisionSettings) throws Exception {
+  public String stnk(
+      String imagePath,
+      VisionSettings newVisionSettings
+  ) throws Exception {
     logSingle("STNK", imagePath);
-    return fetchOcrSingle(imagePath, newVisionSettings, "stnk");
+    return fetchSingle(imagePath, newVisionSettings, "stnk");
   }
 
   /**
@@ -187,13 +193,13 @@ public class Ocr {
     log("BPKB", param);
     Util.checkFileExist(param.getImagePath());
 
-    MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
+    MultipartBody.Builder bodyBuilder = Util.createFormData();
     Util.addFileToFormData(bodyBuilder, "image", param.getImagePath());
     if (param.getPage() >= 1 && param.getPage() <= 4) {
-      bodyBuilder.addTextBody("page", Integer.toString(param.getPage()));
+      Util.addTextToFormData(bodyBuilder, "page", Integer.toString(param.getPage()));
     }
 
-    return fetchOcr(bodyBuilder, newVisionSettings, "bpkb");
+    return fetch(bodyBuilder, newVisionSettings, "bpkb");
   }
 
   /**
@@ -215,9 +221,12 @@ public class Ocr {
    * @return The OCR result for the Passport image.
    * @throws Exception If an error occurs during the OCR process.
    */
-  public String passport(String imagePath, VisionSettings newVisionSettings) throws Exception {
+  public String passport(
+      String imagePath,
+      VisionSettings newVisionSettings
+  ) throws Exception {
     logSingle("Passport", imagePath);
-    return fetchOcrSingle(imagePath, newVisionSettings, "passport");
+    return fetchSingle(imagePath, newVisionSettings, "passport");
   }
 
   /**
@@ -239,9 +248,12 @@ public class Ocr {
    * @return The OCR result for the License Plate image.
    * @throws Exception If an error occurs during the OCR process.
    */
-  public String licensePlate(String imagePath, VisionSettings newVisionSettings) throws Exception {
+  public String licensePlate(
+      String imagePath,
+      VisionSettings newVisionSettings
+  ) throws Exception {
     logSingle("License Plate", imagePath);
-    return fetchOcrSingle(imagePath, newVisionSettings, "plate");
+    return fetchSingle(imagePath, newVisionSettings, "plate");
   }
 
   /**
@@ -263,9 +275,12 @@ public class Ocr {
    * @return The OCR result for the General Document image.
    * @throws Exception If an error occurs during the OCR process.
    */
-  public String generalDocument(String imagePath, VisionSettings newVisionSettings) throws Exception {
+  public String generalDocument(
+      String imagePath,
+      VisionSettings newVisionSettings
+  ) throws Exception {
     logSingle("General Document", imagePath);
-    return fetchOcrSingle(imagePath, newVisionSettings, "general-document");
+    return fetchSingle(imagePath, newVisionSettings, "general-document");
   }
 
   /**
@@ -287,9 +302,12 @@ public class Ocr {
    * @return The OCR result for the Invoice image.
    * @throws Exception If an error occurs during the OCR process.
    */
-  public String invoice(String imagePath, VisionSettings newVisionSettings) throws Exception {
+  public String invoice(
+      String imagePath,
+      VisionSettings newVisionSettings
+  ) throws Exception {
     logSingle("Invoice", imagePath);
-    return fetchOcrSingle(imagePath, newVisionSettings, "invoice");
+    return fetchSingle(imagePath, newVisionSettings, "invoice");
   }
 
   /**
@@ -311,9 +329,12 @@ public class Ocr {
    * @return The OCR result for the Receipt image.
    * @throws Exception If an error occurs during the OCR process.
    */
-  public String receipt(String imagePath, VisionSettings newVisionSettings) throws Exception {
+  public String receipt(
+      String imagePath,
+      VisionSettings newVisionSettings
+  ) throws Exception {
     logSingle("Receipt", imagePath);
-    return fetchOcrSingle(imagePath, newVisionSettings, "receipt");
+    return fetchSingle(imagePath, newVisionSettings, "receipt");
   }
 
   /**
@@ -325,14 +346,15 @@ public class Ocr {
    * @return The OCR result for the image.
    * @throws Exception If an error occurs during the OCR process.
    */
-  private String fetchOcrSingle(String imagePath, VisionSettings newVisionSettings,
-                                String endpoint) throws Exception {
+  private String fetchSingle(
+      String imagePath, VisionSettings newVisionSettings, String endpoint
+  ) throws Exception {
     Util.checkFileExist(imagePath);
 
-    MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
+    MultipartBody.Builder bodyBuilder = Util.createFormData();
     Util.addFileToFormData(bodyBuilder, "image", imagePath);
 
-    return fetchOcr(bodyBuilder, newVisionSettings, endpoint);
+    return fetch(bodyBuilder, newVisionSettings, endpoint);
   }
 
   /**
@@ -344,15 +366,16 @@ public class Ocr {
    * @return The OCR result for the image.
    * @throws Exception If an error occurs during the OCR process.
    */
-  private String fetchOcr(MultipartEntityBuilder bodyBuilder,
-                          VisionSettings newVisionSettings, String endpoint) throws Exception {
+  private String fetch(
+      MultipartBody.Builder bodyBuilder, VisionSettings newVisionSettings, String endpoint
+  ) throws Exception {
     VisionSettings settingsToUse = (newVisionSettings == null) ?
         this.config.getSettings() : newVisionSettings;
 
     String url = "ocr/:version/" + endpoint;
     String method = "POST";
 
-    HttpEntity body = bodyBuilder.build();
+    RequestBody body = bodyBuilder.build();
 
     Request request = new Request.RequestBuilder(url, method).body(body).build();
 

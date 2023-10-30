@@ -1,5 +1,7 @@
 package glair.vision.api;
 
+import glair.vision.api.sessions.ActiveLivenessSessions;
+import glair.vision.api.sessions.PassiveLivenessSessions;
 import glair.vision.logger.Logger;
 import glair.vision.model.Request;
 import glair.vision.model.VisionSettings;
@@ -7,10 +9,9 @@ import glair.vision.model.param.ActiveLivenessParam;
 import glair.vision.model.param.FaceMatchParam;
 import glair.vision.util.Json;
 import glair.vision.util.Util;
-import glair.vision.api.sessions.ActiveLivenessSessions;
-import glair.vision.api.sessions.PassiveLivenessSessions;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 import java.util.HashMap;
 
@@ -73,15 +74,20 @@ public class FaceBio {
    * @return The Face Match result.
    * @throws Exception If an error occurs during the detection process.
    */
-  public String match(FaceMatchParam param, VisionSettings newVisionSettings) throws Exception {
+  public String match(
+      FaceMatchParam param, VisionSettings newVisionSettings
+  ) throws Exception {
     log("Match", param);
-    Util.checkFileExist(param.capturedPath());
-    Util.checkFileExist(param.storedPath());
+    Util.checkFileExist(param.getCapturedPath());
+    Util.checkFileExist(param.getStoredPath());
 
     HashMap<String, String> map = new HashMap<>();
-    map.put("captured_image", Util.fileToBase64(param.capturedPath()));
-    map.put("stored_image", Util.fileToBase64(param.storedPath()));
-    HttpEntity body = Util.createJsonBody(map);
+    map.put("captured_image", Util.fileToBase64(param.getCapturedPath()));
+    map.put("stored_image", Util.fileToBase64(param.getStoredPath()));
+
+    RequestBody body = RequestBody.create(Json.toJsonString(map),
+        MediaType.get("application/json; charset=utf-8")
+    );
 
     return fetch(body, "match", newVisionSettings);
   }
@@ -105,15 +111,16 @@ public class FaceBio {
    * @return The result of Passive Liveness detection.
    * @throws Exception If an error occurs during the detection process.
    */
-  public String passiveLiveness(String imagePath, VisionSettings newVisionSettings) throws Exception {
+  public String passiveLiveness(
+      String imagePath, VisionSettings newVisionSettings
+  ) throws Exception {
     log("Passive Liveness", Json.toJsonString("image", imagePath));
     Util.checkFileExist(imagePath);
 
-    MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
-    Util.addFileToFormData(bodyBuilder, "image", imagePath);
-    HttpEntity body = bodyBuilder.build();
+    MultipartBody.Builder builder = Util.createFormData();
+    Util.addFileToFormData(builder, "image", imagePath);
 
-    return fetch(body, "passive-liveness", newVisionSettings);
+    return fetch(builder.build(), "passive-liveness", newVisionSettings);
   }
 
   /**
@@ -136,29 +143,25 @@ public class FaceBio {
    * @return The result of Active Liveness detection.
    * @throws Exception If an error occurs during the detection process.
    */
-  public String activeLiveness(ActiveLivenessParam param,
-                               VisionSettings newVisionSettings) throws Exception {
+  public String activeLiveness(
+      ActiveLivenessParam param, VisionSettings newVisionSettings
+  ) throws Exception {
     log("Active Liveness", param);
-    Util.checkFileExist(param.imagePath());
+    Util.checkFileExist(param.getImagePath());
 
-    MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
-    Util.addFileToFormData(bodyBuilder, "image", param.imagePath());
-    bodyBuilder.addTextBody("gesture-code", param.gestureCode());
-    HttpEntity body = bodyBuilder.build();
+    MultipartBody.Builder builder = Util.createFormData();
+    Util.addFileToFormData(builder, "image", param.getImagePath());
+    Util.addTextToFormData(builder, "gesture-code", param.getGestureCode().label);
 
-    return fetch(body, "active-liveness", newVisionSettings);
+    return fetch(builder.build(), "active-liveness", newVisionSettings);
   }
 
   /**
    * A private method to fetch Face Biometric data using an HTTP request.
-   *
-   * @param body              The HTTP request body.
-   * @param url               The URL for the request.
-   * @param newVisionSettings The custom vision settings to use.
-   * @return The response data from the Face Biometric operation.
-   * @throws Exception If an error occurs during the operation.
    */
-  private String fetch(HttpEntity body, String url, VisionSettings newVisionSettings) throws Exception {
+  private String fetch(
+      RequestBody body, String url, VisionSettings newVisionSettings
+  ) throws Exception {
     VisionSettings settingsToUse = (newVisionSettings == null) ?
         this.config.getSettings() : newVisionSettings;
 
@@ -172,9 +175,6 @@ public class FaceBio {
 
   /**
    * Log information for a Face Biometric operation.
-   *
-   * @param logTitle The title of the Face Biometric operation.
-   * @param param    The parameter to log.
    */
   private void log(String logTitle, Object param) {
     logger.info("Face Biometric -", logTitle);
