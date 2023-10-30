@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://docs.glair.ai" target="_blank">
+  <a href="https://docs.glair.ai/vision" target="_blank">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://glair-chart.s3.ap-southeast-1.amazonaws.com/images/glair-horizontal-logo-blue.png">
       <source media="(prefers-color-scheme: light)" srcset="https://glair-chart.s3.ap-southeast-1.amazonaws.com/images/glair-horizontal-logo-color.png">
@@ -13,23 +13,21 @@
 <p>
 
 <p align="center">
-    <a href="https://central.sonatype.com/artifact/io.github.vincentchuardi/test-publish"><img src="https://img.shields.io/maven-central/v/io.github.vincentchuardi/test-publish.svg" alt="Latest Release"></a>
-    <a href="https://github.com/glair-ai-shadow/glair-vision-java/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@glair/vision" alt="License"></a>
+    <a href="https://central.sonatype.com/artifact/io.github.vincentchuardi/glair-vision"><img src="https://img.shields.io/maven-central/v/io.github.vincentchuardi/glair-vision.svg" alt="Latest Release"></a>
+    <a href="https://github.com/glair-ai/glair-vision-java/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@glair/vision" alt="License"></a>
 </p>
 
-## Requirement to Develop
+## Requirement
 
-1. JDK 17 or later
-1. Gradle 8.1.1 or later
-1. IntelliJ IDEA 2023 or later
+You need <span style="color: green">**Java 8 or higher**</span>. For local development, we recommend to use [IntelliJ IDEA](https://www.jetbrains.com/idea/).
 
 ## Installation
 
-You can refer to [this page](https://central.sonatype.com/artifact/io.github.vincentchuardi/test-publish)
+You can refer to [this page](https://central.sonatype.com/artifact/io.github.vincentchuardi/glair-vision)
 
 ## Usage
 
-The package needs to be configured with your credentials, see [here](https://docs.glair.ai/authentication) for more details.
+The package needs to be configured with your credentials, see [here](https://docs.glair.ai/vision/authentication) for more details.
 
 ```java
 import glair.vision.Vision;
@@ -48,7 +46,7 @@ public class App {
 }
 ```
 
-The SDK's visionSettings can be initialized with several options:
+The SDK's VisionSettings can be initialized with several options:
 
 | Option       | Default                       | Description                         |
 | ------------ | ----------------------------- | ----------------------------------- |
@@ -93,8 +91,8 @@ public class App {
 
          response = vision
                  .ocr()
-                 .ktp(imagePath, newVisionSettings);
-         // The Configurations' values that will be used on KTP are
+                 .npwp(imagePath, newVisionSettings);
+         // The Configurations' values that will be used on NPWP are
          // username: username
          // password: password
          // apiKey: new-api-key
@@ -163,16 +161,17 @@ By adjusting these options, you can fine-tune the logging behavior of the GLAIR 
 
 ## FAQ
 
-1. IntelliJ IDE can't find the module?
-    - This issue may occur when the library is installed using a JAR file.
-    - Please ensure that you have added the dependency to your `build.gradle` file.
-    - To import the library into the IDE, follow these steps: File > Project Structure > Modules > Dependencies > Add the JAR > OK.
+1. Can this SDK be used in an Android Studio project?
+   - Yes, you can include this SDK as a dependency in your `build.gradle` (or `build.gradle.kts`) file.
+   - Any project that can use dependencies from the Maven Central Repository and is running on Java 8 or higher can utilize this SDK.
 
 ---
 
 ## OCR
 
 ### KTP
+
+#### Without Qualities
 
 ```java
 String imagePath = "/path/to/image.jpg";
@@ -190,7 +189,7 @@ try {
 System.out.println("Response: " + response);
 ```
 
-### KTP Qualities
+#### With Qualities
 
 ```java
 String imagePath = "/path/to/image.jpg";
@@ -207,6 +206,8 @@ try {
 
 System.out.println("Response: " + response);
 ```
+
+The `KtpParam` class is used for the necessary KTP API. It consists of the `imagePath` and `qualitiesDetector` attributes. The `qualitiesDetector` attribute is used only when you need to enable qualities detection for KTP document.
 
 ### NPWP
 
@@ -428,12 +429,13 @@ System.out.println("Response: " + response);
 ```java
 String imagePath = "/path/to/image.jpg";
 String response = "";
+GestureCode gestureCode = GestureCode.HAND_00000
 
 try {
    ActiveLivenessParam param =
       new ActiveLivenessParam(
          imagePath,
-         "HAND_00000");
+         gestureCode);
    response = vision
       .faceBio()
       .activeLiveness(param);
@@ -449,8 +451,8 @@ System.out.println("Response: " + response);
 When creating a session using the GLAIR Vision SDK, you'll need to use the `BaseSessionsParam` class as a parameter. `BaseSessionsParam` requires the `successUrl` to be provided in the constructor, and you can optionally set the `cancelUrl` using the `setCancelUrl` method.
 
 ```java
-BaseSessionsParam param = new BaseSessionsParam("https://docs.glair.ai?success=true");
-param.setCancelUrl("https://docs.glair.ai?success=false");
+BaseSessionsParam param = new BaseSessionsParam("https://docs.glair.ai/vision?success=true");
+param.setCancelUrl("https://docs.glair.ai/vision?success=false");
 
 response = vision
    .ocr()
@@ -470,7 +472,7 @@ You can create a KTP session without specifying the qualities detector as follow
 String response = "";
 
 try {
-   KtpSessionsParam param = new KtpSessionsParam("https://docs.glair.ai?success=true");
+   KtpSessionsParam param = new KtpSessionsParam("https://docs.glair.ai/vision?success=true");
 
    response = vision
       .ocr()
@@ -491,7 +493,7 @@ To create a KTP session with the qualities detector enabled, use the following c
 String response = "";
 
 try {
-   KtpSessionsParam param = new KtpSessionsParam("https://docs.glair.ai?success=true");
+   KtpSessionsParam param = new KtpSessionsParam("https://docs.glair.ai/vision?success=true");
    param.setQualitiesDetector(true);
 
    response = vision
@@ -536,7 +538,7 @@ You can create a NPWP session as follows:
 String response = "";
 
 try {
-   BaseSessionsParam param = new BaseSessionsParam("https://docs.glair.ai?success=true");
+   BaseSessionsParam param = new BaseSessionsParam("https://docs.glair.ai/vision?success=true");
 
    response = vision
       .ocr()
@@ -580,7 +582,7 @@ You can create a Passive Liveness session as follows:
 String response = "";
 
 try {
-   BaseSessionsParam param = new BaseSessionsParam("https://docs.glair.ai?success=true");
+   BaseSessionsParam param = new BaseSessionsParam("https://docs.glair.ai/vision?success=true");
 
    response = vision
       .faceBio()
@@ -624,7 +626,7 @@ You can create a Active Liveness session with default number of gestures as foll
 String response = "";
 
 try {
-   ActiveLivenessSessionsParam param = new ActiveLivenessSessionsParam("https://docs.glair.ai?success=true");
+   ActiveLivenessSessionsParam param = new ActiveLivenessSessionsParam("https://docs.glair.ai/vision?success=true");
 
    response = vision
       .faceBio()
@@ -645,7 +647,7 @@ You can create a Active Liveness session with custom number of gestures as follo
 String response = "";
 
 try {
-   ActiveLivenessSessionsParam param = new ActiveLivenessSessionsParam("https://docs.glair.ai?success=true");
+   ActiveLivenessSessionsParam param = new ActiveLivenessSessionsParam("https://docs.glair.ai/vision?success=true");
    param.setNumberOfGestures(2);
 
    response = vision

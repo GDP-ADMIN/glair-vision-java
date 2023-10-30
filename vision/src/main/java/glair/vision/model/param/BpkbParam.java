@@ -24,7 +24,7 @@ public class BpkbParam {
    * Constructs a new BpkbParam object with the given image path and page number.
    *
    * @param imagePath The path to the image.
-   * @param page      The page number.
+   * @param page      The page number (1 - 4).
    */
   public BpkbParam(String imagePath, int page) {
     this.imagePath = imagePath;
