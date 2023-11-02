@@ -81,13 +81,13 @@ publishing {
                     }
                 }
 
-//                developers {
-//                    developer {
-//                        id = 'vincentchuardi'
-//                        name = 'Vincent Chuardi'
-//                        email = 'vincent.chuardi@gdplabs.id'
-//                    }
-//                }
+                developers {
+                    developer {
+                        id = 'GLAIR'
+                        name = 'GLAIR'
+                        email = 'hi@glair.ai'
+                    }
+                }
 
                 scm {
                     connection = 'scm:git:git:' + artifactRepositoryGit
