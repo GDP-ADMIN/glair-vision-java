@@ -13,7 +13,7 @@
 <p>
 
 <p align="center">
-    <a href="https://central.sonatype.com/artifact/io.github.vincentchuardi/glair-vision"><img src="https://img.shields.io/maven-central/v/io.github.vincentchuardi/glair-vision.svg" alt="Latest Release"></a>
+    <a href="https://central.sonatype.com/artifact/ai.glair/glair-vision"><img src="https://img.shields.io/maven-central/v/ai.glair/glair-vision.svg" alt="Latest Release"></a>
     <a href="https://github.com/glair-ai/glair-vision-java/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@glair/vision" alt="License"></a>
 </p>
 
@@ -23,7 +23,7 @@ You need <span style="color: green">**Java 8 or higher**</span>. For local devel
 
 ## Installation
 
-You can refer to [this page](https://central.sonatype.com/artifact/io.github.vincentchuardi/glair-vision)
+You can refer to [this page](https://central.sonatype.com/artifact/ai.glair/glair-vision)
 
 ## Usage
 
@@ -163,6 +163,7 @@ By adjusting these options, you can fine-tune the logging behavior of the GLAIR 
 
 1. Can this SDK be used in an Android Studio project?
    - Yes, you can include this SDK as a dependency in your `build.gradle` (or `build.gradle.kts`) file.
+   - This SDK is tested on Android API Level 24+.
    - Any project that can use dependencies from the Maven Central Repository and is running on Java 8 or higher can utilize this SDK.
 
 ---
