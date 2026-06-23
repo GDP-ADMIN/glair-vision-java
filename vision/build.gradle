@@ -137,6 +137,10 @@ publishing {
 
     repositories {
         maven {
+            name = "GAR"
+            url "artifactregistry://asia-maven.pkg.dev/glair-vision/glair-vision-java"
+        }
+        maven {
             name = "OSSRH"
             url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
             credentials {
@@ -149,4 +153,9 @@ publishing {
 
 signing {
     sign publishing.publications.mavenJava
+}
+
+// Skip signing for CI (GAR uses ADC, not GPG)
+tasks.withType(Sign).configureEach {
+    onlyIf { project.hasProperty('signing.keyId') }
 }

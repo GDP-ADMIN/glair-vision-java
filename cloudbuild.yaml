@@ -39,6 +39,15 @@ steps:
     waitFor:
       - 'Run Unit Test'
 
+  - id: 'Publish to GAR'
+    name: 'eclipse-temurin:17-jdk'
+    entrypoint: bash
+    args:
+      - '-c'
+      - './gradlew :vision:publishMavenJavaPublicationToGARRepository --no-daemon'
+    waitFor:
+      - 'Run Unit Test'
+
 timeout: 15m
 
 substitutions:
