@@ -45,10 +45,11 @@ public abstract class MockSdkTest {
     vision = new Vision(settings, new LoggerConfig(LoggerConfig.ERROR));
 
     // Resolve sample image from test resources on the classpath
-    sampleImagePath = getClass()
+    sampleImagePath = new File(getClass()
         .getClassLoader()
         .getResource("sample.png")
-        .getPath();
+        .toURI())
+        .getAbsolutePath();
   }
 
   @AfterEach
