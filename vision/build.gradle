@@ -85,7 +85,8 @@ javadoc {
 
 def artifactGroupId = 'ai.glair'
 def artifactName = 'glair-vision'
-def artifactVersion = '0.0.1-beta.1'
+// Version from TAG_NAME env (strip leading 'v'), fallback to 0.0.1-SNAPSHOT for local dev
+def artifactVersion = (System.getenv('TAG_NAME') ?: 'v0.0.1-SNAPSHOT').replaceFirst('^v', '')
 def artifactRepositoryUrl = 'https://github.com/glair-ai/glair-vision-java'
 def artifactRepositoryGit = 'github.com/glair-ai/glair-vision-java.git'
 

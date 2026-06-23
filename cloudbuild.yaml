@@ -45,6 +45,8 @@ steps:
     args:
       - '-c'
       - './gradlew :vision:publishMavenJavaPublicationToGARRepository --no-daemon'
+    env:
+      - 'TAG_NAME=$TAG_NAME'
     waitFor:
       - 'Run Unit Test'
 
