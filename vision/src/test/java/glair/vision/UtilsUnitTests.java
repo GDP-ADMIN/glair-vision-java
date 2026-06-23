@@ -119,7 +119,11 @@ public class UtilsUnitTests {
 
   @Test
   public void env_loadsPropertiesFromFile_returnsCorrectValues() throws Exception {
-    String path = getClass().getClassLoader().getResource("test.properties").getPath();
+    String path = new File(getClass()
+        .getClassLoader()
+        .getResource("test.properties")
+        .toURI())
+        .getAbsolutePath();
     Env env = new Env(path, false);
     assertEquals("testUser", env.getUsername());
     assertEquals("testPass", env.getPassword());
@@ -135,7 +139,11 @@ public class UtilsUnitTests {
 
   @Test
   public void env_loadsAllProperties_returnsCorrectValues() throws Exception {
-    String path = getClass().getClassLoader().getResource("test-all.properties").getPath();
+    String path = new File(getClass()
+        .getClassLoader()
+        .getResource("test-all.properties")
+        .toURI())
+        .getAbsolutePath();
     Env env = new Env(path, false);
     assertEquals("/path/npwp.png", env.getNpwp());
     assertEquals("/path/kk.png", env.getKk());
@@ -153,7 +161,11 @@ public class UtilsUnitTests {
 
   @Test
   public void env_debugMode_doesNotThrow() throws Exception {
-    String path = getClass().getClassLoader().getResource("test-all.properties").getPath();
+    String path = new File(getClass()
+        .getClassLoader()
+        .getResource("test-all.properties")
+        .toURI())
+        .getAbsolutePath();
     assertDoesNotThrow(() -> new Env(path, true));
   }
 }

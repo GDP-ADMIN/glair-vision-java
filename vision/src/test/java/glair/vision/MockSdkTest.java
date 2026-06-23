@@ -8,6 +8,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -25,7 +26,7 @@ public abstract class MockSdkTest {
   protected String sampleImagePath;
 
   @BeforeEach
-  public void setUp() throws IOException {
+  public void setUp() throws Exception {
     server = new MockWebServer();
     server.start();
 
