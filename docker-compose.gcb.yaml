@@ -5,7 +5,7 @@ services:
     entrypoint: bash
     command:
       - '-c'
-      - './gradlew --build-cache test --stacktrace'
+      - './gradlew --build-cache test jar --stacktrace'
     volumes:
       - '.:/workspace'
 
