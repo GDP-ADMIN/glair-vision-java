@@ -1,0 +1,74 @@
+steps:
+  - id: 'Run Unit Test'
+    name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'compose'
+      - '--file=docker-compose.gcb.yaml'
+      - 'run'
+      - '--rm'
+      - 'glair-vision-java'
+    waitFor: ['-']
+
+  - id: 'Run SCA'
+    name: ${_GCR_REPO}/$PROJECT_ID/infra-vision/secops
+    entrypoint: bash
+    args:
+      - '-c'
+      - 'export WORKSPACE=$(pwd); rm -rf .git; bash /opt/sq.sh'
+    env:
+      - 'PROJECT_ID=$PROJECT_ID'
+      - 'CI_BRANCH=${BRANCH_NAME}'
+    secretEnv:
+      - 'SCA_TOKEN'
+    waitFor:
+      - 'Run Unit Test'
+
+  - id: 'Vulnerability Scanning'
+    name: 'asia.gcr.io/$PROJECT_ID/trivyhub'
+    args:
+      - 'fs'
+      - '.'
+      - 'trivy-result.txt'
+    env:
+      - 'REPOSITORY=${_GITHUB_USER}/${REPO_NAME}'
+      - 'COMMIT_ID=${REVISION_ID}'
+      - 'TRIVY_CACHE_DIR=.cache/trivy/'
+      - 'TITLE=Trivy Result: glair-vision-java:${SHORT_SHA}'
+    secretEnv:
+      - 'GH_TOKEN'
+    waitFor:
+      - 'Run Unit Test'
+
+  - id: 'Publish to GAR'
+    name: 'eclipse-temurin:17-jdk'
+    entrypoint: bash
+    args:
+      - '-c'
+      - './gradlew :vision:publishMavenJavaPublicationToGARRepository --no-daemon'
+    env:
+      - 'TAG_NAME=$TAG_NAME'
+    waitFor:
+      - 'Run Unit Test'
+
+timeout: 15m
+
+substitutions:
+  _GITHUB_USER: GDP-ADMIN
+  _GCR_REPO: asia-southeast2-docker.pkg.dev
+
+options:
+  env:
+    - 'DOCKER_BUILDKIT=1'
+    - 'COMPOSE_DOCKER_CLI_BUILD=1'
+    - 'SONAR_USER_HOME=.cache'
+    - 'XDG_CACHE_HOME=.cache'
+    - 'TRIVY_CACHE_DIR=.cache'
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/INFRA_GL_GITHUB_TOKEN/versions/latest
+      env: 'GH_TOKEN'
+    - versionName: projects/$PROJECT_ID/secrets/INFRA_GL_SONARQUBE_TOKEN/versions/latest
+      env: 'SCA_TOKEN'
+
+tags: ['glair-vision-java', 'build']

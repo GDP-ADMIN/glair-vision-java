@@ -1,0 +1,15 @@
+services:
+  glair-vision-java:
+    image: eclipse-temurin:17-jdk
+    working_dir: /workspace
+    entrypoint: bash
+    command:
+      - '-c'
+      - './gradlew --build-cache test jar --stacktrace'
+    volumes:
+      - '.:/workspace'
+
+networks:
+  default:
+    external: true
+    name: cloudbuild
