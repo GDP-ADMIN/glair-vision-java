@@ -84,6 +84,25 @@ public class UtilsUnitTests {
     assertFalse(result.isEmpty());
   }
 
+  @Test
+  public void fileToBase64_largeFile_encodesAllBytesWithoutTruncation() throws Exception {
+    // Guards against the single-read() truncation regression: a multi-KB file
+    // must round-trip to exactly the original bytes.
+    File temp = File.createTempFile("large", ".bin");
+    temp.deleteOnExit();
+    byte[] original = new byte[64 * 1024];
+    for (int i = 0; i < original.length; i++) {
+      original[i] = (byte) (i % 251);
+    }
+    java.nio.file.Files.write(temp.toPath(), original);
+
+    String encoded = Util.fileToBase64(temp.getAbsolutePath());
+    byte[] decoded = glair.vision.util.Base64.decode(encoded,
+        glair.vision.util.Base64.DEFAULT);
+
+    assertArrayEquals(original, decoded);
+  }
+
   // ----------------------------------------------------------------
   // Json.toJsonString
   // ----------------------------------------------------------------
@@ -111,6 +130,23 @@ public class UtilsUnitTests {
     String result = Json.toJsonString(map, 2);
     assertTrue(result.contains("\n"));
     assertTrue(result.contains("\"key\": \"val\""));
+  }
+
+  @Test
+  public void jsonString_mapWithIndent_multipleEntries_isValidJson() {
+    // Guards against the comma-placement bug (no trailing comma, comma between
+    // every entry). Uses LinkedHashMap only for a deterministic assertion.
+    java.util.LinkedHashMap<String, String> map = new java.util.LinkedHashMap<String, String>();
+    map.put("a", "1");
+    map.put("b", "2");
+    map.put("c", "3");
+    String result = Json.toJsonString(map, 2);
+
+    // Exactly one comma per gap between the three entries, none trailing.
+    assertEquals(2, result.chars().filter(ch -> ch == ',').count(),
+        "expected exactly two commas for three entries");
+    assertFalse(result.replaceAll("\\s+", "").contains(",}"),
+        "must not produce a trailing comma before the closing brace");
   }
 
   // ----------------------------------------------------------------

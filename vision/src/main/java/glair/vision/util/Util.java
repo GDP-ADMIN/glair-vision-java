@@ -11,8 +11,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.net.URLConnection;
+import java.nio.file.Files;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -52,6 +52,8 @@ public class Util {
       httpRequestBuilder.get();
     } else if (method.equalsIgnoreCase("POST")) {
       httpRequestBuilder.post(request.getBody());
+    } else {
+      throw new Exception("Unsupported HTTP method: " + method);
     }
 
     okhttp3.Request httpRequest = httpRequestBuilder.build();
@@ -118,11 +120,9 @@ public class Util {
    * @throws Exception If an error occurs during the file conversion process.
    */
   public static String fileToBase64(String filePath) throws Exception {
-    File file = new File(filePath);
-    byte[] buffer = new byte[(int) file.length() + 100];
-    @SuppressWarnings("resource") int length = new FileInputStream(file).read(buffer);
+    byte[] bytes = Files.readAllBytes(new File(filePath).toPath());
 
-    return Base64.encodeToString(buffer, 0, length, Base64.DEFAULT);
+    return Base64.encodeToString(bytes, Base64.DEFAULT);
   }
 
   /**
