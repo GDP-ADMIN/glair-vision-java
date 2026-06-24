@@ -143,7 +143,7 @@ public class Config {
     map.put("apiVersion", this.apiVersion);
     map.put("apiKey", this.apiKey);
     map.put("username", this.username);
-    map.put("password", this.password);
+    map.put("password", this.password == null ? null : "********");
 
     return "Config " + Json.toJsonString(map, 2);
   }

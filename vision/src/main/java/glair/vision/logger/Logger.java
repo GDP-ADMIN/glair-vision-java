@@ -2,8 +2,8 @@ package glair.vision.logger;
 
 import glair.vision.util.Json;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 
 /**
@@ -13,10 +13,15 @@ import java.util.HashMap;
 public class Logger {
   private static Logger instance;
 
+  private static final String DEFAULT_PATTERN =
+      "[{timestamp}] [{level}] GLAIR Vision SDK: {message}";
+  private static final DateTimeFormatter TIMESTAMP_FORMAT =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
   private final String[] logLevelMapping = {"debug", "info ", "warn ", "error"};
 
   private int logLevel;
-  private String pattern;
+  private String pattern = DEFAULT_PATTERN;
 
   private Logger() {}
 
@@ -114,8 +119,7 @@ public class Logger {
       return;
     }
 
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-    String now = dateFormat.format(new Date());
+    String now = LocalDateTime.now().format(TIMESTAMP_FORMAT);
 
     String level = logLevelMapping[logLevel];
 
@@ -125,7 +129,8 @@ public class Logger {
     }
     String message = messageBuilder.toString().trim();
 
-    String formattedLog = pattern
+    String activePattern = pattern != null ? pattern : DEFAULT_PATTERN;
+    String formattedLog = activePattern
         .replace("{timestamp}", now)
         .replace("{level}", level.toUpperCase())
         .replace("{message}", message);
@@ -140,7 +145,7 @@ public class Logger {
       try {
         return obj.toString();
       } catch (Exception e) {
-        return "Failed to convert to JSON: " + obj;
+        return "Failed to stringify object: " + e.getMessage();
       }
     }
   }
@@ -157,17 +162,6 @@ public class Logger {
     map.put("Log Pattern", getPattern());
 
     return Json.toJsonString(map, 2);
-  }
-
-  /**
-   * Main method for testing the logger.
-   *
-   * @param args Command-line arguments (not used).
-   */
-  public static void main(String[] args) {
-    Logger logger = new Logger();
-    logger.info("This is an info message.", 42, true);
-    logger.debug("This is a debug message.", new int[]{1, 2, 3});
   }
 }
 

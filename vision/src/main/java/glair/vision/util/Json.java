@@ -64,17 +64,18 @@ public class Json {
     String tab = createTab(indent);
     StringBuilder stringBuilder = new StringBuilder("{\n");
 
+    boolean first = true;
     for (Map.Entry<String, String> entry : map.entrySet()) {
+      if (!first) {
+        stringBuilder.append(",\n");
+      }
       stringBuilder
           .append(tab)
           .append(formatJsonProperty(entry.getKey(), entry.getValue()));
-      if (!entry.equals(map.entrySet().iterator().next())) {
-        stringBuilder.append(",");
-      }
-      stringBuilder.append("\n");
+      first = false;
     }
 
-    stringBuilder.append("}");
+    stringBuilder.append("\n}");
     return stringBuilder.toString();
   }
 
